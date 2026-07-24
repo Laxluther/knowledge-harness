@@ -30,6 +30,15 @@
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .home-hero p { color: var(--text-muted); max-width: 56ch; margin: var(--sp-3) auto 0; }
+  .home-footer {
+    text-align: center;
+    padding: var(--sp-5) var(--sp-5) var(--sp-6);
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+  }
+  .home-footer strong { color: var(--text-muted); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -45,6 +54,10 @@
 <div class="map-page" style="height:auto">
   <div class="map-viewport" id="viewport" style="flex:none;height:min(78vh,900px)"></div>
 </div>
+
+<footer class="home-footer">
+  <p>Built by <strong>Sanidhya Rana</strong></p>
+</footer>
 
 <script src="assets/js/progress.js"></script>
 <script src="assets/js/toast.js"></script>
