@@ -19,45 +19,46 @@
 <link rel="stylesheet" href="assets/css/astronaut.css" />
 <style>
   .home-hero {
-    padding: var(--sp-7) var(--sp-5) var(--sp-4);
+    flex-shrink: 0;
+    padding: var(--sp-4) var(--sp-5) var(--sp-3);
     text-align: center;
   }
   .home-hero .eyebrow { color: var(--ion-soft); }
   .home-hero h1 {
-    font-size: clamp(1.8rem, 6vw, 3rem);
-    margin-top: var(--sp-2);
+    font-size: clamp(1.4rem, 4.4vw, 2.3rem);
+    margin-top: var(--sp-1);
     background: linear-gradient(120deg, var(--text) 30%, var(--ion-soft), var(--amber-soft));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .home-hero p { color: var(--text-muted); max-width: 56ch; margin: var(--sp-3) auto 0; }
+  .home-hero p { color: var(--text-muted); font-size: 0.9rem; max-width: 56ch; margin: var(--sp-2) auto 0; }
   .home-footer {
-    text-align: center;
-    padding: var(--sp-5) var(--sp-5) var(--sp-6);
+    position: absolute;
+    left: 50%;
+    bottom: var(--sp-3);
+    transform: translateX(-50%);
     color: var(--text-faint);
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     letter-spacing: 0.04em;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 5;
   }
   .home-footer strong { color: var(--text-muted); font-weight: 500; }
 </style>
 </head>
 <body>
 <div class="grid-backdrop"></div>
-<div id="statusbar-root"></div>
 
-<div class="home-hero">
-  <span class="eyebrow enter-up" style="animation-delay:0ms">KNOWLEDGE HARNESS</span>
-  <h1 class="enter-up" style="animation-delay:80ms">From Language Models<br />to Agentic AI Systems</h1>
-  <p class="enter-up" style="animation-delay:200ms">Clear a chapter's challenge to light up the path to the next.</p>
+<div class="map-page">
+  <div id="statusbar-root"></div>
+  <div class="home-hero">
+    <span class="eyebrow enter-up" style="animation-delay:0ms">KNOWLEDGE HARNESS</span>
+    <h1 class="enter-up" style="animation-delay:80ms">From Language Models<br />to Agentic AI Systems</h1>
+    <p class="enter-up" style="animation-delay:200ms">Clear a chapter's challenge to light up the path to the next.</p>
+  </div>
+  <div class="map-viewport" id="viewport"></div>
 </div>
-
-<div class="map-page" style="height:auto">
-  <div class="map-viewport" id="viewport" style="flex:none;height:min(78vh,900px)"></div>
-</div>
-
-<footer class="home-footer">
-  <p>Built by <strong>Sanidhya Rana</strong></p>
-</footer>
 
 <script src="assets/js/progress.js"></script>
 <script src="assets/js/toast.js"></script>
@@ -122,6 +123,11 @@
     edges,
     focusId: "part-1",
   });
+
+  const credit = document.createElement("div");
+  credit.className = "home-footer";
+  credit.innerHTML = `Built by <strong>Sanidhya Rana</strong>`;
+  document.getElementById("viewport").appendChild(credit);
 </script>
 </body>
 </html>
