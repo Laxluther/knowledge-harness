@@ -98,13 +98,13 @@
   const p7 = partState("part-7");
 
   const regions = [
-    { id: "part-1", n: "I", x: 450, y: 110, title: "LLM Foundations", href: "part-1/map.html", state: p1.state, sub: p1.sub },
-    { id: "part-2", n: "II", x: 230, y: 350, title: "Prompting & Context", href: "part-2/map.html", state: p2.state, sub: p2.sub },
-    { id: "part-3", n: "III", x: 670, y: 590, title: "Retrieval-Augmented Generation", href: "part-3/map.html", state: p3.state, sub: p3.sub },
-    { id: "part-4", n: "IV", x: 450, y: 830, title: "Tool Use & Single Agents", href: "part-4/map.html", state: p4.state, sub: p4.sub },
-    { id: "part-5", n: "V", x: 230, y: 1070, title: "Multi-Agent & Orchestration", href: "part-5/map.html", state: p5.state, sub: p5.sub },
-    { id: "part-6", n: "VI", x: 670, y: 1310, title: "Production Agentic Systems", href: "part-6/map.html", state: p6.state, sub: p6.sub },
-    { id: "part-7", n: "VII", x: 450, y: 1550, title: "Current Frontier", href: "part-7/map.html", state: p7.state, sub: p7.sub },
+    { id: "part-1", n: "I", x: 450, y: 110, title: "LLM Foundations", href: "part-1/map.html", state: p1.state, sub: p1.sub, variant: "ember" },
+    { id: "part-2", n: "II", x: 230, y: 350, title: "Prompting & Context", href: "part-2/map.html", state: p2.state, sub: p2.sub, variant: "ice" },
+    { id: "part-3", n: "III", x: 670, y: 590, title: "Retrieval-Augmented Generation", href: "part-3/map.html", state: p3.state, sub: p3.sub, variant: "terra" },
+    { id: "part-4", n: "IV", x: 450, y: 830, title: "Tool Use & Single Agents", href: "part-4/map.html", state: p4.state, sub: p4.sub, variant: "verdant" },
+    { id: "part-5", n: "V", x: 230, y: 1070, title: "Multi-Agent & Orchestration", href: "part-5/map.html", state: p5.state, sub: p5.sub, variant: "violet" },
+    { id: "part-6", n: "VI", x: 670, y: 1310, title: "Production Agentic Systems", href: "part-6/map.html", state: p6.state, sub: p6.sub, variant: "moon" },
+    { id: "part-7", n: "VII", x: 450, y: 1550, title: "Current Frontier", href: "part-7/map.html", state: p7.state, sub: p7.sub, variant: "lava" },
   ].map((r) => ({ ...r, isRegion: true, title: r.sub ? `${r.title} · ${r.sub}` : r.title }));
 
   const edges = [

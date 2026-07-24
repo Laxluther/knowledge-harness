@@ -77,9 +77,10 @@ const MapRenderer = (() => {
 
       const spinClass = nodeIndex % 2 === 1 ? " spin-reverse" : "";
       const spinDelay = -(nodeIndex * 11) % 64;
+      const planetAttr = n.variant ? ` data-planet="${n.variant}"` : "";
 
       el.innerHTML = `
-        <div class="map-node__chip${spinClass}">
+        <div class="map-node__chip${spinClass}"${planetAttr}>
           <div class="map-node__surface" style="animation-delay:${spinDelay}s"></div>
           <div class="map-node__shade"></div>
           <span class="map-node__glyph">${n.n ?? ""}</span>
