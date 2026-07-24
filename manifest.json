@@ -1,0 +1,25 @@
+{
+  "name": "Knowledge Harness — LLM to Agentic AI",
+  "short_name": "Knowledge Harness",
+  "description": "A gamified, textbook-depth path from language models to agentic AI systems.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0d16",
+  "theme_color": "#0a0d16",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

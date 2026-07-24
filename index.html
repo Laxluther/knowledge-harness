@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0d16" />
+<title>Knowledge Harness — LLM to Agentic AI</title>
+<meta name="description" content="A gamified, textbook-depth path from language models to agentic AI systems." />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/base.css" />
+<link rel="stylesheet" href="assets/css/components.css" />
+<link rel="stylesheet" href="assets/css/map.css" />
+<link rel="stylesheet" href="assets/css/astronaut.css" />
+<style>
+  .home-hero {
+    padding: var(--sp-7) var(--sp-5) var(--sp-4);
+    text-align: center;
+  }
+  .home-hero .eyebrow { color: var(--ion-soft); }
+  .home-hero h1 {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    margin-top: var(--sp-2);
+    background: linear-gradient(120deg, var(--text) 30%, var(--ion-soft), var(--amber-soft));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .home-hero p { color: var(--text-muted); max-width: 56ch; margin: var(--sp-3) auto 0; }
+</style>
+</head>
+<body>
+<div class="grid-backdrop"></div>
+<div id="statusbar-root"></div>
+
+<div class="home-hero">
+  <span class="eyebrow enter-up" style="animation-delay:0ms">SIGNAL PATH</span>
+  <h1 class="enter-up" style="animation-delay:80ms">From Language Models<br />to Agentic AI Systems</h1>
+  <p class="enter-up" style="animation-delay:200ms">Seven Parts, one dependency graph. Clear a chapter's challenge to light up the path to the next. Drag to pan, scroll or pinch to zoom.</p>
+</div>
+
+<div class="map-page" style="height:auto">
+  <div class="map-viewport" id="viewport" style="flex:none;height:min(78vh,900px)"></div>
+</div>
+
+<script src="assets/js/progress.js"></script>
+<script src="assets/js/toast.js"></script>
+<script src="assets/js/confetti.js"></script>
+<script src="assets/js/particles.js"></script>
+<script src="assets/js/asteroids.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/astronaut.js"></script>
+<script src="assets/js/rocket.js"></script>
+<script src="assets/js/map-render.js"></script>
+<script src="content/part-1.js"></script>
+<script src="content/part-2.js"></script>
+<script src="content/part-3.js"></script>
+<script src="content/part-4.js"></script>
+<script src="content/part-5.js"></script>
+<script src="content/part-6.js"></script>
+<script src="content/part-7.js"></script>
+<script>
+  Particles.mount();
+  Asteroids.mount(6);
+  document.getElementById("statusbar-root").outerHTML = App.buildStatusBar({ homeHref: "index.html" });
+
+  function partState(partId) {
+    const data = window.PARTS[partId];
+    if (!data) return { state: "locked", sub: undefined };
+    const completion = Progress.partCompletion(data.chapters.map((c) => c.id));
+    const state = completion.done === completion.total ? "completed" : "unlocked";
+    return { state, sub: `${completion.done}/${completion.total}` };
+  }
+
+  const p1 = partState("part-1");
+  const p2 = partState("part-2");
+  const p3 = partState("part-3");
+  const p4 = partState("part-4");
+  const p5 = partState("part-5");
+  const p6 = partState("part-6");
+  const p7 = partState("part-7");
+
+  const regions = [
+    { id: "part-1", n: "I", x: 450, y: 110, title: "LLM Foundations", href: "part-1/map.html", state: p1.state, sub: p1.sub },
+    { id: "part-2", n: "II", x: 230, y: 350, title: "Prompting & Context", href: "part-2/map.html", state: p2.state, sub: p2.sub },
+    { id: "part-3", n: "III", x: 670, y: 590, title: "Retrieval-Augmented Generation", href: "part-3/map.html", state: p3.state, sub: p3.sub },
+    { id: "part-4", n: "IV", x: 450, y: 830, title: "Tool Use & Single Agents", href: "part-4/map.html", state: p4.state, sub: p4.sub },
+    { id: "part-5", n: "V", x: 230, y: 1070, title: "Multi-Agent & Orchestration", href: "part-5/map.html", state: p5.state, sub: p5.sub },
+    { id: "part-6", n: "VI", x: 670, y: 1310, title: "Production Agentic Systems", href: "part-6/map.html", state: p6.state, sub: p6.sub },
+    { id: "part-7", n: "VII", x: 450, y: 1550, title: "Current Frontier", href: "part-7/map.html", state: p7.state, sub: p7.sub },
+  ].map((r) => ({ ...r, isRegion: true, title: r.sub ? `${r.title} · ${r.sub}` : r.title }));
+
+  const edges = [
+    ["part-1", "part-2"],
+    ["part-2", "part-3"],
+    ["part-3", "part-4"],
+    ["part-4", "part-5"],
+    ["part-5", "part-6"],
+    ["part-6", "part-7"],
+  ];
+
+  MapRenderer.init({
+    container: document.getElementById("viewport"),
+    viewBox: "0 0 900 1650",
+    nodes: regions,
+    edges,
+    focusId: "part-1",
+  });
+</script>
+</body>
+</html>

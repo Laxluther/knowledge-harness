@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0d16" />
+<title>Part IV — Tool Use & Single Agents · Knowledge Harness</title>
+<link rel="manifest" href="../manifest.json" />
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/css/tokens.css" />
+<link rel="stylesheet" href="../assets/css/base.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/map.css" />
+<link rel="stylesheet" href="../assets/css/astronaut.css" />
+</head>
+<body>
+<div class="grid-backdrop"></div>
+<div class="map-page">
+  <div id="statusbar-root"></div>
+  <div class="map-header">
+    <a class="map-header__back enter-up" href="../index.html">← All Parts</a>
+    <h1 id="part-title" class="enter-up" style="animation-delay:60ms"></h1>
+    <p id="part-tagline" class="enter-up" style="animation-delay:140ms"></p>
+    <div class="map-header__progress enter-up" style="animation-delay:220ms">
+      <div class="xp-bar"><div class="xp-bar__track"><div class="xp-bar__fill" id="part-fill"></div></div></div>
+      <span class="badge" id="part-count"></span>
+    </div>
+  </div>
+  <div class="map-viewport" id="viewport"></div>
+</div>
+
+<script src="../assets/js/progress.js"></script>
+<script src="../assets/js/toast.js"></script>
+<script src="../assets/js/confetti.js"></script>
+<script src="../assets/js/particles.js"></script>
+<script src="../assets/js/asteroids.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/astronaut.js"></script>
+<script src="../assets/js/rocket.js"></script>
+<script src="../assets/js/map-render.js"></script>
+<script src="../content/part-4.js"></script>
+<script>
+  Particles.mount(16);
+  Asteroids.mount(5);
+  const part = window.PART_DATA;
+  document.getElementById("statusbar-root").outerHTML = App.buildStatusBar({
+    homeHref: "../index.html",
+    toggle: { mapHref: "map.html", reviseHref: "revise.html", mode: "quest" },
+  });
+
+  document.getElementById("part-title").textContent = `Part IV — ${part.title}`;
+  document.getElementById("part-tagline").textContent = part.tagline;
+
+  const chapterMap = Object.fromEntries(part.chapters.map((c) => [c.id, c]));
+  const completion = Progress.partCompletion(part.chapters.map((c) => c.id));
+  document.getElementById("part-fill").style.setProperty("--xp-pct", `${completion.pct}%`);
+  document.getElementById("part-count").textContent = `${completion.done} / ${completion.total} cleared`;
+
+  const nodes = part.chapters.map((c) => {
+    const completed = Progress.isCompleted(c.id);
+    const unlocked = Progress.isUnlocked(c.id, chapterMap);
+    const state = completed ? "completed" : unlocked ? "unlocked" : "locked";
+    const missing = (c.requires || []).filter((r) => !Progress.isCompleted(r)).map((r) => chapterMap[r].title);
+    return {
+      id: c.id,
+      n: c.n,
+      x: c.node.x,
+      y: c.node.y,
+      title: c.title,
+      href: `ch-${String(c.n).padStart(2, "0")}.html`,
+      state,
+      lockMsg: missing.length ? `Complete "${missing.join('", "')}" first` : undefined,
+    };
+  });
+
+  const focusNode = nodes.find((n) => n.state === "unlocked") || [...nodes].reverse().find((n) => n.state === "completed") || nodes[0];
+
+  MapRenderer.init({
+    container: document.getElementById("viewport"),
+    viewBox: part.mapViewBox,
+    nodes,
+    edges: part.edges,
+    focusId: focusNode.id,
+  });
+
+  const legend = document.createElement("div");
+  legend.className = "map-legend";
+  legend.innerHTML = `
+    <div class="map-legend__row"><span class="map-legend__dot amber"></span>Mastered</div>
+    <div class="map-legend__row"><span class="map-legend__dot ion"></span>Ready</div>
+    <div class="map-legend__row"><span class="map-legend__dot locked"></span>Locked</div>
+  `;
+  document.getElementById("viewport").appendChild(legend);
+</script>
+</body>
+</html>

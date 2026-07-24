@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0d16" />
+<title>Revise — Part V: Multi-Agent & Orchestration · Knowledge Harness</title>
+<link rel="manifest" href="../manifest.json" />
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/css/tokens.css" />
+<link rel="stylesheet" href="../assets/css/base.css" />
+<link rel="stylesheet" href="../assets/css/components.css" />
+<link rel="stylesheet" href="../assets/css/quest.css" />
+<link rel="stylesheet" href="../assets/css/simple.css" />
+<link rel="stylesheet" href="../assets/css/astronaut.css" />
+</head>
+<body>
+<div class="grid-backdrop"></div>
+<div id="statusbar-root"></div>
+
+<div class="revise-layout">
+  <nav class="revise-toc" id="toc">
+    <div class="revise-toc__title">Part V · On this page</div>
+  </nav>
+  <main class="revise-main">
+    <header>
+      <button class="revise-mobile-toc-toggle" id="toc-toggle">☰ Chapter list</button>
+      <h1 id="revise-title"></h1>
+      <p id="revise-tagline"></p>
+    </header>
+    <div id="chapters"></div>
+  </main>
+</div>
+
+<script src="../assets/js/progress.js"></script>
+<script src="../assets/js/toast.js"></script>
+<script src="../assets/js/confetti.js"></script>
+<script src="../assets/js/particles.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/astronaut.js"></script>
+<script src="../content/part-5.js"></script>
+<script>
+  Particles.mount(12);
+  const part = window.PART_DATA;
+  document.getElementById("statusbar-root").outerHTML = App.buildStatusBar({
+    homeHref: "../index.html",
+    toggle: { mapHref: "map.html", reviseHref: "revise.html", mode: "revise" },
+  });
+
+  document.getElementById("revise-title").textContent = `Part V — ${part.title}`;
+  document.getElementById("revise-tagline").textContent = `${part.tagline} · continuous revision view, ordered ${part.chapters.length} chapters.`;
+
+  const ordered = [...part.chapters].sort((a, b) => a.n - b.n);
+
+  const toc = document.getElementById("toc");
+  ordered.forEach((c) => {
+    const a = document.createElement("a");
+    a.href = `#${c.id}`;
+    a.textContent = `${c.n}. ${c.title}`;
+    toc.appendChild(a);
+  });
+
+  const chaptersRoot = document.getElementById("chapters");
+  chaptersRoot.innerHTML = ordered
+    .map(
+      (c) => `
+    <article class="revise-chapter" id="${c.id}">
+      <span class="eyebrow revise-chapter__eyebrow">CHAPTER ${String(c.n).padStart(2, "0")}</span>
+      <h2>${c.title}</h2>
+      <div class="prose">${c.hook}${c.explain}</div>
+
+      <div class="revise-block">
+        <div class="revise-block__label">Visualize</div>
+        ${App.renderDiagram(c.diagram, { animated: false })}
+        ${c.diagram2 ? `<div style="height:12px"></div>${App.renderDiagram(c.diagram2, { animated: false })}` : ""}
+      </div>
+
+      ${c.math ? `<div class="revise-block">
+        <div class="revise-block__label">The Math</div>
+        ${App.renderFormulas(c.math)}
+      </div>` : ""}
+
+      <div class="revise-block">
+        <div class="revise-block__label">Intuition</div>
+        <div class="revise-callout prose">${c.analogy}</div>
+      </div>
+
+      <div class="revise-block">
+        <div class="revise-block__label">In Practice</div>
+        <div class="revise-callout revise-callout--amber prose">${c.example}</div>
+      </div>
+
+      <div class="revise-block">
+        <div class="revise-block__label">Key Takeaways</div>
+        <ul class="revise-takeaways">${c.takeaways.map((t) => `<li>${t}</li>`).join("")}</ul>
+      </div>
+
+      <div class="revise-block revise-qa">
+        <div class="revise-block__label">Quick Self-Check</div>
+        ${c.quiz
+          .map(
+            (q) => `<details>
+              <summary>${q.q}</summary>
+              <p><strong style="color:var(--amber-soft)">${q.options[q.answer]}</strong> — ${q.explain}</p>
+            </details>`
+          )
+          .join("")}
+      </div>
+    </article>`
+    )
+    .join("");
+
+  document.querySelectorAll(".diagram-bars__fill").forEach((el) => {
+    el.style.transitionDelay = "0ms";
+  });
+  App.activateDiagrams(document);
+
+  document.getElementById("toc-toggle").addEventListener("click", () => {
+    toc.classList.toggle("is-open");
+  });
+
+  const tocLinks = [...toc.querySelectorAll("a")];
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        const link = toc.querySelector(`a[href="#${e.target.id}"]`);
+        if (!link) return;
+        if (e.isIntersecting) {
+          tocLinks.forEach((l) => l.classList.remove("is-active"));
+          link.classList.add("is-active");
+        }
+      });
+    },
+    { rootMargin: "-20% 0px -70% 0px" }
+  );
+  document.querySelectorAll(".revise-chapter").forEach((el) => io.observe(el));
+</script>
+</body>
+</html>

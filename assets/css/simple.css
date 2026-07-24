@@ -1,0 +1,241 @@
+/* ============================================================
+   Simple mode — continuous-scroll revision document
+   No game chrome: fast to skim, easy to Ctrl+F.
+   ============================================================ */
+
+.revise-layout {
+  display: flex;
+  align-items: flex-start;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-5) var(--sp-9);
+  gap: var(--sp-7);
+}
+
+.revise-toc {
+  position: sticky;
+  top: var(--sp-6);
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-height: calc(100vh - var(--sp-8));
+  overflow-y: auto;
+}
+
+.revise-toc a {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  border-left: 2px solid transparent;
+}
+
+.revise-toc a:hover {
+  color: var(--text);
+}
+
+.revise-toc a.is-active {
+  color: var(--ion-soft);
+  border-left-color: var(--ion);
+  background: var(--panel);
+}
+
+.revise-toc__title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 10px;
+  margin-bottom: var(--sp-1);
+}
+
+.revise-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.revise-main > header {
+  margin-bottom: var(--sp-7);
+}
+
+.revise-main > header h1 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+.revise-main > header p {
+  color: var(--text-muted);
+  margin-top: var(--sp-2);
+}
+
+.revise-chapter {
+  padding-bottom: var(--sp-7);
+  margin-bottom: var(--sp-7);
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: var(--sp-5);
+}
+
+.revise-chapter:last-child {
+  border-bottom: none;
+}
+
+.revise-chapter__eyebrow {
+  color: var(--ion-soft);
+}
+
+.revise-chapter h2 {
+  font-size: 1.5rem;
+  margin: var(--sp-2) 0 var(--sp-4);
+}
+
+.revise-chapter .prose p {
+  margin-bottom: var(--sp-3);
+  color: var(--text);
+}
+
+.revise-chapter .prose strong {
+  color: var(--amber-soft);
+  font-weight: 600;
+}
+
+.revise-chapter .prose em {
+  color: var(--ion-soft);
+  font-style: normal;
+}
+
+.revise-block {
+  margin: var(--sp-4) 0;
+}
+
+.revise-block__label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: var(--sp-2);
+}
+
+.revise-callout {
+  background: var(--panel);
+  border-left: 3px solid var(--ion);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.revise-callout--amber {
+  border-left-color: var(--amber);
+}
+
+.revise-takeaways {
+  display: grid;
+  gap: 6px;
+}
+
+.revise-takeaways li {
+  padding-left: var(--sp-4);
+  position: relative;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.revise-takeaways li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--ion-soft);
+}
+
+.revise-qa {
+  margin-top: var(--sp-3);
+}
+
+.revise-qa details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: 6px;
+}
+
+.revise-qa summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+.revise-qa summary::marker {
+  color: var(--ion-soft);
+}
+
+.revise-qa p {
+  margin-top: var(--sp-2);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding-left: var(--sp-3);
+}
+
+.revise-mobile-toc-toggle {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .revise-layout {
+    flex-direction: column;
+    align-items: stretch;
+    padding-inline: var(--sp-4);
+  }
+
+  .revise-toc {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    width: 100%;
+    max-height: none;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: var(--sp-2) 0;
+    margin-bottom: var(--sp-3);
+    background: var(--void);
+    border-bottom: 1px solid var(--line);
+    display: none;
+  }
+
+  .revise-toc.is-open {
+    display: flex;
+  }
+
+  .revise-toc__title {
+    display: none;
+  }
+
+  .revise-toc a {
+    flex-shrink: 0;
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  .revise-toc a.is-active {
+    border-left: none;
+    border-bottom-color: var(--ion);
+  }
+
+  .revise-mobile-toc-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border: 1px solid var(--line-bright);
+    border-radius: var(--radius-full);
+    padding: 6px 14px;
+    margin-bottom: var(--sp-4);
+  }
+}
