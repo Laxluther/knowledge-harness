@@ -609,23 +609,55 @@ window.PART_DATA = {
         },
         {
           expr: "W′ = W<sub>0</sub> + ΔW = W<sub>0</sub> + BA, &nbsp; B ∈ ℝ<sup>d×r</sup>, A ∈ ℝ<sup>r×k</sup>, r ≪ min(d, k)",
-          note: "<strong>LoRA's core trick.</strong> Instead of updating the full weight matrix <code>W₀</code>, freeze it and learn a low-rank update <code>BA</code> — two small matrices whose product approximates the needed change. With rank <code>r</code> in the single digits or tens, this can cut trainable parameters by 99%+ while leaving the frozen base weights untouched.",
+          note: "<strong>LoRA's core trick.</strong> Instead of updating the full weight matrix <code>W₀</code>, freeze it and learn a low-rank update <code>BA</code> — two small matrices whose product approximates the needed change. With rank <code>r</code> in the single digits or tens, this can cut trainable parameters by 99%+ while leaving the frozen base weights untouched. At inference, <code>BA</code> can be merged straight into <code>W₀</code> — zero added latency.",
+        },
+        {
+          expr: "M<sub>inference</sub> ≈ 1.2 × P × b<sub>bytes</sub>",
+          note: "<strong>Memory to run a model.</strong> <code>P</code> = parameter count, <code>b<sub>bytes</sub></code> = bytes per parameter at the precision you load it in (FP32 = 4, FP16/BF16 = 2, INT8 = 1, INT4 = 0.5). The ×1.2 is a rule-of-thumb overhead for activations, the KV cache, and framework bookkeeping at moderate context length — long contexts push this higher, since the KV cache itself scales with sequence length × batch size.",
+        },
+        {
+          expr: "M<sub>full-FT</sub> ≈ P × (2 + 2 + 8 + 4) = 16P bytes",
+          note: "<strong>Memory to fully fine-tune, per parameter, with Adam in mixed precision.</strong> 2 bytes for FP16 weights + 2 bytes for FP16 gradients + 8 bytes for Adam's optimizer state (fp32 first + second moment) + 4 bytes for an fp32 master weight copy = 16 bytes/parameter — the standard rule of thumb, before adding activation memory (which scales separately with batch size × sequence length).",
+        },
+        {
+          expr: "M<sub>LoRA</sub> ≈ P × 2 &nbsp;+&nbsp; P<sub>LoRA</sub> × 12, &nbsp; P<sub>LoRA</sub> ≪ P",
+          note: "<strong>LoRA fine-tuning memory.</strong> The frozen base stays at 2 bytes/parameter (FP16) with no optimizer state needed — it never updates. Only the tiny adapter parameters <code>P<sub>LoRA</sub></code> (often under 1% of <code>P</code>) need gradients + Adam state (≈12 bytes each). Since <code>P<sub>LoRA</sub></code> is so small, this is dominated by the same term as plain inference — LoRA fine-tuning costs roughly what just running the model costs.",
+        },
+        {
+          expr: "M<sub>QLoRA</sub> ≈ P × 0.5 &nbsp;+&nbsp; P<sub>LoRA</sub> × 12",
+          note: "<strong>QLoRA fine-tuning memory.</strong> Identical to LoRA, except the frozen base is stored 4-bit (NF4, ≈0.5 bytes/parameter) instead of FP16 — quartering the dominant term. This is the formula behind QLoRA fine-tuning a 65B model on one 48GB GPU (Dettmers et al., 2023), a size class that previously needed multiple 80GB GPUs.",
         },
       ],
       hook: "<p>A base model knows a lot but doesn't know how to be an assistant. Fine-tuning teaches it a role.</p>",
       explain: `<p><strong>Supervised Fine-Tuning (SFT)</strong> continues training the pretrained base model on a smaller, curated dataset of high-quality (prompt, ideal response) pairs — typically written or reviewed by humans, or generated and filtered — demonstrating the desired behavior: following instructions, formatting answers helpfully, adopting an assistant persona, refusing inappropriate requests appropriately.</p>
       <p>Because the base model already carries broad linguistic and world knowledge from pretraining, SFT needs orders of magnitude less data — thousands to low millions of examples, versus trillions of pretraining tokens. That efficiency is the power of transfer learning.</p>
       <p><strong>Instruction tuning</strong> specifically means SFT across many different task types phrased as instructions — "summarize this," "translate this," "write code for X" — which generalizes to following instructions on tasks never explicitly seen during training. This is a major reason instruction-tuned models feel broadly capable across so many use cases.</p>
-      <p><strong>Parameter-efficient fine-tuning (PEFT)</strong> methods like LoRA (Low-Rank Adaptation) fine-tune by training small added weight matrices rather than updating all original parameters, drastically cutting compute and memory cost — important for teams that can't afford full fine-tuning runs. Done carelessly, fine-tuning can overfit or cause <strong>catastrophic forgetting</strong> — degrading capabilities the base model already had — so data quality, diversity, and training hyperparameters matter a great deal.</p>`,
+      <p><strong>Parameter-efficient fine-tuning (PEFT)</strong> methods like LoRA (Low-Rank Adaptation) fine-tune by training small added weight matrices rather than updating all original parameters, drastically cutting compute and memory cost — important for teams that can't afford full fine-tuning runs. Done carelessly, fine-tuning can overfit or cause <strong>catastrophic forgetting</strong> — degrading capabilities the base model already had — so data quality, diversity, and training hyperparameters matter a great deal.</p>
+      <p><strong>QLoRA</strong> (Dettmers et al., 2023) pushes this further: it quantizes the frozen base model down to 4-bit precision using <strong>NF4</strong> (NormalFloat4 — a data type tuned to how neural network weights are actually distributed), while the small LoRA adapters are still trained in 16-bit for numerical stability. Two extra tricks make this work well in practice: <strong>double quantization</strong> (quantizing the quantization constants themselves, saving a little more memory) and <strong>paged optimizers</strong> (spilling optimizer state to CPU memory during rare gradient spikes instead of crashing with an out-of-memory error). The practical difference from plain LoRA is simple: <strong>LoRA keeps the frozen base in 16-bit; QLoRA keeps it in 4-bit.</strong> Same trainable adapters, same merge-back trick at inference — QLoRA just shrinks the one thing that actually dominates memory use: holding the frozen weights.</p>
+      <p>How much memory each approach needs comes down to how many bytes are held per parameter, and how many of a model's parameters actually need gradients and optimizer state versus just storage. The formulas below make that concrete.</p>`,
+      diagram3: {
+        type: "bars",
+        label: "Approx. memory to work with a 7B-parameter model (illustrative, FP16/BF16 baseline)",
+        unit: " GB",
+        noSample: true,
+        bars: [
+          { label: "Inference", value: 17 },
+          { label: "Full fine-tune", value: 112 },
+          { label: "LoRA", value: 15 },
+          { label: "QLoRA", value: 6 },
+        ],
+      },
       analogy:
-        "<p>If pretraining is a broad liberal-arts education, SFT is a focused apprenticeship — a mentor shows worked examples of exactly how to respond in a specific role. The underlying knowledge is already there; this stage teaches format and demeanor.</p>",
+        "<p>If pretraining is a broad liberal-arts education, SFT is a focused apprenticeship — a mentor shows worked examples of exactly how to respond in a specific role. The underlying knowledge is already there; this stage teaches format and demeanor.</p><p>Full fine-tuning is repainting an entire mural. LoRA is sticking a few translucent overlays on top of it — cheap to make, easy to swap, peelable back to the original underneath. QLoRA does that same overlay trick on a compressed photograph of the mural instead of the full-size original — you can still paint on it precisely, you just needed far less shelf space to store what you're painting on.</p>",
       example:
-        "<p>Starting from the same base model, one SFT dataset teaches it to answer like a terse technical API; another teaches it to answer like a friendly tutor. Same underlying knowledge, very different behavior after fine-tuning — purely from what example responses it was shown.</p>",
+        "<p>Starting from the same base model, one SFT dataset teaches it to answer like a terse technical API; another teaches it to answer like a friendly tutor. Same underlying knowledge, very different behavior after fine-tuning — purely from what example responses it was shown.</p><p>A team wants to fine-tune a 70B model on a single 80GB GPU. Full fine-tuning needs roughly 70B × 16 bytes ≈ 1.1 TB — completely out of reach. Plain LoRA gets the frozen weights down to about 140GB — better, but still too big for one card. QLoRA quantizes that frozen base to 4-bit — about 35GB — leaving enough headroom on the same single 80GB GPU to train adapters comfortably. That's the exact memory math that made fine-tuning frontier-scale open models accessible to teams without a GPU cluster.</p>",
       takeaways: [
         "SFT continues training the pretrained model on curated (prompt, response) pairs to teach behavior, not new knowledge.",
         "Instruction tuning across many task types is why models generalize to unseen instructions.",
         "SFT needs far less data than pretraining because it builds on transfer learning from the base model.",
         "PEFT methods (e.g. LoRA) fine-tune efficiently by training small added parameters instead of the whole model.",
+        "QLoRA quantizes the frozen base to 4-bit (NF4) while training adapters in 16-bit — cutting memory further with minimal quality loss.",
+        "Rule of thumb: inference ≈ 1.2×P×bytes/param; full fine-tuning ≈ 16×P bytes; LoRA ≈ 2×P bytes; QLoRA ≈ 0.5×P bytes — QLoRA's edge comes entirely from shrinking the frozen base.",
         "Poor fine-tuning data or hyperparameters risk catastrophic forgetting of base capabilities.",
       ],
       quiz: [
@@ -683,6 +715,28 @@ window.PART_DATA = {
           ],
           answer: 1,
           explain: "A low rank r means B and A together have vastly fewer entries than the full matrix W₀, which is exactly why LoRA is so much cheaper than full fine-tuning.",
+        },
+        {
+          q: "What does QLoRA change relative to standard LoRA?",
+          options: [
+            "It removes the need for a base model entirely",
+            "It quantizes the frozen base model to 4-bit (NF4) while still training the LoRA adapters in 16-bit",
+            "It trains the entire model in 4-bit, including the adapters",
+            "It disables the low-rank decomposition and updates all weights",
+          ],
+          answer: 1,
+          explain: "QLoRA's memory savings come specifically from quantizing the large frozen base to 4-bit; the small trainable adapters stay in higher precision for stable training.",
+        },
+        {
+          q: "Roughly how much memory does full fine-tuning need per parameter with Adam in mixed precision, and why is that so much more than LoRA?",
+          options: [
+            "2 bytes — the same as LoRA, since both compute gradients",
+            "~16 bytes — FP16 weights + FP16 gradients + FP32 Adam state + an FP32 master copy must be stored for every parameter, while LoRA only pays that cost for a tiny adapter",
+            "0.5 bytes — full fine-tuning is actually more memory-efficient than LoRA",
+            "Full fine-tuning needs no memory beyond what inference already uses",
+          ],
+          answer: 1,
+          explain: "Full fine-tuning stores weights, gradients, and optimizer state for every parameter (~16 bytes total); LoRA only pays that cost for its small adapter matrices, leaving the frozen base at just 2 bytes/parameter.",
         },
       ],
     },

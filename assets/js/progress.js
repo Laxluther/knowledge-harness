@@ -76,10 +76,16 @@ const Progress = (() => {
   }
 
   function isUnlocked(chapterId, chapterMap) {
+    // TEMP: chapter locking disabled for content review — every chapter
+    // is reachable regardless of prerequisites. Restore the check below
+    // once vetting is done.
+    return true;
+    /*
     const ch = chapterMap[chapterId];
     if (!ch) return false;
     if (!ch.requires || ch.requires.length === 0) return true;
     return ch.requires.every((r) => isCompleted(r));
+    */
   }
 
   function completeChapter(chapterId, xpAward) {

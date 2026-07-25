@@ -114,7 +114,7 @@ const App = (() => {
         const pct = Math.round((b.value / max) * 100);
         const delay = animated ? i * 90 : 0;
         return `<div class="diagram-bars__col" data-idx="${i}">
-          <div class="diagram-bars__val">${b.value}%</div>
+          <div class="diagram-bars__val">${b.value}${spec.unit ?? "%"}</div>
           <div class="diagram-bars__fill" data-target="${pct}" style="transition-delay:${delay}ms"></div>
           <div class="diagram-bars__tok">${b.label}</div>
         </div>`;
@@ -607,7 +607,10 @@ const App = (() => {
       .map(Number)
       .sort((a, b) => a - b);
     const tierGap = 118;
-    const stageW = 560;
+    // Kept in sync with .crew-stage's max-width in quest.css — this is the
+    // coordinate system nodes are positioned in, so a mismatch leaves nodes
+    // spilling past the actual rendered box on narrow viewports.
+    const stageW = 400;
     const positions = {};
     tierKeys.forEach((t, ti) => {
       const row = tiers[t];

@@ -60,6 +60,7 @@ const QuestRender = (() => {
         <div class="quest-section__label"><span class="quest-section__icon" style="font-size:1.1rem">${SECTION_ICONS.diagram}</span><span class="eyebrow">Visualize It</span></div>
         ${App.renderDiagram(chapter.diagram)}
         ${chapter.diagram2 ? `<div style="height:var(--sp-4)"></div>${App.renderDiagram(chapter.diagram2)}` : ""}
+        ${chapter.diagram3 ? `<div style="height:var(--sp-4)"></div>${App.renderDiagram(chapter.diagram3)}` : ""}
       </section>
 
       ${chapter.math ? `<section class="quest-section container" data-section>
