@@ -167,7 +167,7 @@ window.PART_DATA = {
           { from: "rewrite", to: "retrieve" },
           { from: "retrieve", to: "rerank" },
           { from: "rerank", to: "generate" },
-          { from: "generate", to: "sys" },
+          { from: "generate", to: "sys", via: { x: 340, y: 290 } },
         ],
         statusSteps: [
           "Raw filings, PDFs and pages come in",

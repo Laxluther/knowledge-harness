@@ -6,6 +6,10 @@
 const App = (() => {
   let diagramSeq = 0;
   const registry = {};
+  // Crew diagram coordinate-system width — shared between renderCrew's node
+  // layout and activateCrew's packet motion, and kept in sync with
+  // .crew-stage's max-width in quest.css (see the comment at its use below).
+  const CREW_STAGE_W = 400;
 
   function renderDiagram(spec, { animated = true } = {}) {
     if (!spec) return "";
@@ -639,7 +643,7 @@ const App = (() => {
     // Kept in sync with .crew-stage's max-width in quest.css — this is the
     // coordinate system nodes are positioned in, so a mismatch leaves nodes
     // spilling past the actual rendered box on narrow viewports.
-    const stageW = 400;
+    const stageW = CREW_STAGE_W;
     const positions = {};
     tierKeys.forEach((t, ti) => {
       const row = tiers[t];
@@ -650,10 +654,17 @@ const App = (() => {
     });
     const stageH = 54 + (tierKeys.length - 1) * tierGap + 70;
 
+    // A flow hop can carry a `via` waypoint to route it as a curve that
+    // bows out around the rest of the diagram, instead of a straight line
+    // cutting back through the middle of it (e.g. a "return to sender" hop
+    // crossing back over every stage it just passed through).
     const edgesSvg = spec.flow
       .map((f) => {
         const a = positions[f.from];
         const b = positions[f.to];
+        if (f.via) {
+          return `<path d="M ${a.x} ${a.y} Q ${f.via.x} ${f.via.y} ${b.x} ${b.y}" class="crew-edge" fill="none" />`;
+        }
         return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="crew-edge" />`;
       })
       .join("");
@@ -704,6 +715,16 @@ const App = (() => {
         return { x: r.left - sr.left + r.width / 2, y: r.top - sr.top + r.height / 2 };
       }
 
+      // Converts a point from the raw CREW_STAGE_W coordinate system (what
+      // node positions and SVG `via` control points are authored in) into
+      // actual on-screen pixels relative to the stage — matching centerOf's
+      // space so a waypoint lines up with real node positions even if
+      // .crew-stage has shrunk below CREW_STAGE_W on a narrow viewport.
+      function stagePoint(rawX, rawY) {
+        const sr = stage.getBoundingClientRect();
+        return { x: (rawX / CREW_STAGE_W) * sr.width, y: rawY };
+      }
+
       function bounce(el) {
         if (!el) return;
         el.classList.add("is-receiving");
@@ -734,9 +755,22 @@ const App = (() => {
             packet.style.top = `${a.y}px`;
             void packet.offsetWidth;
             packet.style.transition = "";
-            packet.style.left = `${b.x}px`;
-            packet.style.top = `${b.y}px`;
-            await wait(540);
+            if (f.via) {
+              // Bend through the waypoint in two legs so the packet follows
+              // the same curved detour as the SVG line, instead of cutting
+              // straight back through the rest of the diagram.
+              const via = stagePoint(f.via.x, f.via.y);
+              packet.style.left = `${via.x}px`;
+              packet.style.top = `${via.y}px`;
+              await wait(320);
+              packet.style.left = `${b.x}px`;
+              packet.style.top = `${b.y}px`;
+              await wait(320);
+            } else {
+              packet.style.left = `${b.x}px`;
+              packet.style.top = `${b.y}px`;
+              await wait(540);
+            }
             bounce(nodeEl(f.to));
             status();
             packet.style.opacity = "0";
