@@ -48,20 +48,20 @@ window.PART_DATA = {
         },
       },
       diagram2: {
-        type: "crew",
-        task: "What was Acme Corp's exact Q3 2025 revenue?",
-        nodes: [
-          { id: "llm", label: "LLM", role: "captain", tier: 0 },
-          { id: "kb", label: "Company Filings", role: "board", tier: 1 },
+        type: "scene",
+        question: "What was Acme Corp's exact Q3 2025 revenue?",
+        stations: [
+          { id: "llm", label: "LLM", glyph: "🧠", x: 20 },
+          { id: "kb", label: "Company Filings", glyph: "🗄", x: 82, kind: "kb", holdsFile: true },
         ],
-        flow: [{ from: "llm", to: "kb" }],
-        roundTrip: true,
-        statusSteps: [
-          "LLM doesn't actually know this — it wasn't in training",
-          "Sends a retrieval agent out to fetch it",
-          "Agent finds the real filing and grabs the figure",
-          "Returns it to the LLM",
-          "LLM answers, grounded in the real document",
+        start: "llm",
+        answer: "✓ \"Acme's Q3 2025 revenue was $4.2M\" — quoted from the filing, with a citation.",
+        steps: [
+          { to: "llm", think: true, say: "The LLM doesn't actually know this — it wasn't in its training data." },
+          { to: "kb", say: "So it sends a retrieval step out to the real company filings." },
+          { to: "kb", pickup: true, say: "Finds the actual filing and grabs the exact figure." },
+          { to: "llm", say: "Carries that real evidence back to the model." },
+          { to: "llm", deliver: true, say: "Now the LLM answers — grounded in the real document, not a guess." },
         ],
       },
       hook: "<p>LLMs are frozen the moment training ends, and they'll answer confidently whether or not they actually know. RAG is the fix that lets a model look something up instead of guessing.</p>",

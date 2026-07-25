@@ -38,9 +38,143 @@ const App = (() => {
         return renderCrew(spec);
       case "vectorstrip":
         return renderVectorStrip(spec);
+      case "scene":
+        return renderScene(spec);
       default:
         return "";
     }
+  }
+
+  // Theatrical "scene": the astronaut mascot physically walks a horizontal
+  // stage between labelled stations, thinking, picking up a file, carrying
+  // it back, and delivering it — acting out a concept step by step instead
+  // of showing an abstract node graph. Used to explain flows where a
+  // "go fetch something and bring it back" narrative is the whole point
+  // (retrieval, tool calls, the agent loop).
+  function renderScene(spec) {
+    const id = `scene-${diagramSeq++}`;
+    registry[id] = spec;
+
+    const stationsHtml = spec.stations
+      .map(
+        (s) => `<div class="scene-station${s.kind ? ` scene-station--${s.kind}` : ""}" id="${id}-st-${s.id}" style="left:${s.x}%">
+          <div class="scene-station__box">${s.glyph || "▤"}</div>
+          <div class="scene-station__label">${s.label}</div>
+          ${s.holdsFile ? `<div class="scene-station__file" id="${id}-file">▤</div>` : ""}
+        </div>`
+      )
+      .join("");
+
+    return `<div class="diagram" id="${id}" data-diagram-type="scene">
+      ${spec.question ? `<div class="scene-question">Q → <span>"${spec.question}"</span></div>` : ""}
+      <div class="scene-stage">
+        <div class="scene-ground"></div>
+        ${stationsHtml}
+        <div class="scene-actor" id="${id}-actor">
+          <div class="scene-actor__bubble" id="${id}-bubble" data-speech></div>
+          ${Astronaut.markup()}
+        </div>
+      </div>
+      <div class="scene-answer" id="${id}-answer">${spec.answer || ""}</div>
+      <div class="crew-status" id="${id}-status">${(spec.steps[0] && spec.steps[0].say) || ""}</div>
+    </div>`;
+  }
+
+  function activateScene(root) {
+    root.querySelectorAll('[data-diagram-type="scene"]').forEach((diagramEl) => {
+      const id = diagramEl.id;
+      const spec = registry[id];
+      if (!spec || spec.__started || typeof Astronaut === "undefined") return;
+      spec.__started = true;
+
+      const stage = diagramEl.querySelector(".scene-stage");
+      const actor = document.getElementById(`${id}-actor`);
+      const bubble = document.getElementById(`${id}-bubble`);
+      const statusEl = document.getElementById(`${id}-status`);
+      const answerEl = document.getElementById(`${id}-answer`);
+      const fileEl = document.getElementById(`${id}-file`);
+      const stationX = (sid) => spec.stations.find((s) => s.id === sid).x;
+      // Stop just short of a station, pulled toward stage centre, so the
+      // astronaut stands beside the box in the open corridor rather than
+      // covering it.
+      const approachX = (sid) => {
+        const x = stationX(sid);
+        return x < 50 ? x + 9 : x - 9;
+      };
+      const wait = (ms) => new Promise((r) => window.setTimeout(r, ms));
+      const bounce = (sid) => {
+        const el = document.getElementById(`${id}-st-${sid}`);
+        if (!el) return;
+        el.classList.add("is-active");
+        window.setTimeout(() => el.classList.remove("is-active"), 700);
+      };
+
+      // start position (instant, no walk)
+      let posId = spec.start || spec.stations[0].id;
+      actor.style.transition = "none";
+      actor.style.left = `${approachX(posId)}%`;
+      void actor.offsetWidth;
+      actor.style.transition = "";
+
+      function say(text) {
+        if (statusEl) statusEl.textContent = text || "";
+      }
+
+      async function runStep(step) {
+        say(step.say);
+        // walk to a station if the step targets a different one
+        if (step.to && step.to !== posId) {
+          actor.classList.add("is-walking");
+          actor.style.left = `${approachX(step.to)}%`;
+          await wait(1150);
+          actor.classList.remove("is-walking");
+          posId = step.to;
+        }
+        if (step.think) {
+          bubble.textContent = "";
+          bubble.innerHTML = `<span class="astro-dot"></span><span class="astro-dot"></span><span class="astro-dot"></span>`;
+          bubble.classList.add("is-visible");
+          await wait(step.hold || 1500);
+          bubble.classList.remove("is-visible");
+        }
+        if (step.pickup) {
+          if (fileEl) fileEl.classList.add("is-taken");
+          actor.classList.add("is-carrying");
+          bounce(posId);
+          await wait(step.hold || 900);
+        }
+        if (step.deliver) {
+          actor.classList.remove("is-carrying");
+          bounce(posId);
+          if (answerEl) answerEl.classList.add("is-visible");
+          await wait(step.hold || 1900);
+        }
+        if (!step.think && !step.pickup && !step.deliver) {
+          await wait(step.hold || 850);
+        }
+      }
+
+      async function cycle() {
+        for (const step of spec.steps) {
+          await runStep(step);
+        }
+        // reset for the next loop
+        await wait(700);
+        if (answerEl) answerEl.classList.remove("is-visible");
+        actor.classList.remove("is-carrying");
+        if (fileEl) fileEl.classList.remove("is-taken");
+        actor.style.transition = "none";
+        actor.style.left = `${approachX(spec.start || spec.stations[0].id)}%`;
+        void actor.offsetWidth;
+        actor.style.transition = "";
+        posId = spec.start || spec.stations[0].id;
+        await wait(600);
+      }
+
+      (async function loop() {
+        for (;;) await cycle();
+      })();
+    });
   }
 
   // A literal look at what an embedding actually is: a row of numbers.
@@ -809,6 +943,7 @@ const App = (() => {
     activateReward(root);
     activateRadar(root);
     activateCrew(root);
+    activateScene(root);
   }
 
   function renderFormulas(math) {

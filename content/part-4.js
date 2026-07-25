@@ -46,24 +46,21 @@ window.PART_DATA = {
         },
       },
       diagram2: {
-        type: "crew",
-        task: "Find the cheapest flight to Tokyo next month and email me the confirmation",
-        nodes: [
-          { id: "llm", label: "Agent", role: "captain", tier: 0 },
-          { id: "flights", label: "search_flights()", role: "board", tier: 1 },
-          { id: "email", label: "send_email()", role: "board", tier: 1 },
+        type: "scene",
+        question: "Find the cheapest flight to Tokyo next month and email me the confirmation",
+        stations: [
+          { id: "agent", label: "Agent", glyph: "🤖", x: 14 },
+          { id: "flights", label: "search_flights()", glyph: "✈", x: 52, kind: "kb", holdsFile: true },
+          { id: "email", label: "send_email()", glyph: "✉", x: 88, kind: "kb" },
         ],
-        flow: [
-          { from: "llm", to: "flights" },
-          { from: "flights", to: "llm" },
-          { from: "llm", to: "email" },
-          { from: "email", to: "llm" },
-        ],
-        statusSteps: [
-          "Calls search_flights() — real prices, not a guess",
-          "Gets back live results, picks the cheapest",
-          "Calls send_email() with the confirmation",
-          "Task actually completed — not just described",
+        start: "agent",
+        answer: "✓ Cheapest flight found and confirmation emailed — a task completed, not just described.",
+        steps: [
+          { to: "agent", think: true, say: "A single answer can't book anything. An agent runs a loop of real actions." },
+          { to: "flights", say: "First it calls search_flights() — real prices, not a guess." },
+          { to: "flights", pickup: true, say: "Gets back live results and picks the cheapest." },
+          { to: "email", say: "Carries that result straight into the next action." },
+          { to: "email", deliver: true, say: "Calls send_email() with the confirmation — the multi-step task is actually done." },
         ],
       },
       hook: "<p>Calling a single API to a language model is not an agent — even if the response is clever. An agent is a loop, not a single hop.</p>",

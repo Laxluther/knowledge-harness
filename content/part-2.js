@@ -441,20 +441,20 @@ window.PART_DATA = {
         stages: ["User request", "Model decides: call a tool?", "Structured call emitted", "App executes the function", "Result returned to model", "Model continues"],
       },
       diagram2: {
-        type: "crew",
-        task: "What's the weather in Tokyo right now?",
-        nodes: [
-          { id: "llm", label: "LLM", role: "captain", tier: 0 },
-          { id: "tool", label: "get_weather()", role: "board", tier: 1 },
+        type: "scene",
+        question: "What's the weather in Tokyo right now?",
+        stations: [
+          { id: "llm", label: "LLM", glyph: "🧠", x: 20 },
+          { id: "tool", label: "get_weather()", glyph: "🛠", x: 82, kind: "kb", holdsFile: true },
         ],
-        flow: [{ from: "llm", to: "tool" }],
-        roundTrip: true,
-        statusSteps: [
-          "Model can't know live weather — training data goes stale",
-          "Emits a structured call: get_weather(city=\"Tokyo\")",
-          "App executes the function against a real weather API",
-          "Result returns: 18°C, light rain",
-          "Model reads the result and answers using real, current data",
+        start: "llm",
+        answer: "✓ \"It's 18°C with light rain in Tokyo right now.\"",
+        steps: [
+          { to: "llm", think: true, say: "The model can't know live weather — its training data is frozen." },
+          { to: "tool", say: "So it emits a structured call: get_weather(city=\"Tokyo\")." },
+          { to: "tool", pickup: true, say: "The app runs the real function against a live weather API." },
+          { to: "llm", say: "The result — 18°C, light rain — is carried back to the model." },
+          { to: "llm", deliver: true, say: "Now it answers using real, current data instead of guessing." },
         ],
       },
       hook: "<p>An LLM that can only reply in free-form prose is hard to wire into real software. Structured output and tool calling are what let a model reliably drive code, instead of just producing text a human reads.</p>",
