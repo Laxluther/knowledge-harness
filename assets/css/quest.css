@@ -503,6 +503,76 @@
   color: var(--amber-soft);
 }
 
+/* ---- vector strip: what an embedding literally looks like ---- */
+.vecstrip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.vecstrip__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.vecstrip__label {
+  flex-shrink: 0;
+  width: 64px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+  text-align: right;
+}
+
+.vecstrip__cells {
+  display: flex;
+  gap: 3px;
+}
+
+.vecstrip__cell {
+  flex-shrink: 0;
+  width: 44px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text);
+}
+
+.vecstrip__cell--pos {
+  background: rgba(124, 92, 255, calc(0.14 + var(--mag) * 0.62));
+}
+
+.vecstrip__cell--neg {
+  background: rgba(255, 180, 84, calc(0.14 + var(--mag) * 0.62));
+}
+
+.vecstrip__note {
+  margin-top: var(--sp-1);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .vecstrip__label {
+    width: 50px;
+    font-size: 0.75rem;
+  }
+  .vecstrip__cell {
+    width: 36px;
+    height: 28px;
+    font-size: 0.56rem;
+  }
+}
+
 /* ---- attention diagram ---- */
 .attn-wrap {
   position: relative;

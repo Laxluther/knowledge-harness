@@ -32,9 +32,38 @@ const App = (() => {
         return renderRadar(spec);
       case "crew":
         return renderCrew(spec);
+      case "vectorstrip":
+        return renderVectorStrip(spec);
       default:
         return "";
     }
+  }
+
+  // A literal look at what an embedding actually is: a row of numbers.
+  // Rows placed together so similar tokens visibly share a color pattern
+  // and a dissimilar token visibly doesn't — ties directly into cosine
+  // similarity rather than just showing an abstract 2D scatter.
+  function renderVectorStrip(spec) {
+    const rows = spec.rows
+      .map((r) => {
+        const cells = r.values
+          .map((v) => {
+            const mag = Math.min(1, Math.abs(v)).toFixed(2);
+            const sign = v >= 0 ? "pos" : "neg";
+            return `<div class="vecstrip__cell vecstrip__cell--${sign}" style="--mag:${mag}"><span>${v.toFixed(2)}</span></div>`;
+          })
+          .join("");
+        return `<div class="vecstrip__row">
+          <div class="vecstrip__label">${r.label}</div>
+          <div class="vecstrip__cells">${cells}</div>
+        </div>`;
+      })
+      .join("");
+    return `<div class="diagram" data-diagram-type="vectorstrip">
+      ${spec.caption ? `<div class="diagram-bars__label">${spec.caption}</div>` : ""}
+      <div class="vecstrip">${rows}</div>
+      ${spec.note ? `<div class="vecstrip__note">${spec.note}</div>` : ""}
+    </div>`;
   }
 
   function pipelineStages(stages, animated, delayOffset = 0) {

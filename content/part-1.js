@@ -157,6 +157,16 @@ window.PART_DATA = {
           { label: "sit", x: 60, y: 18, cluster: "verb" },
         ],
       },
+      diagram3: {
+        type: "vectorstrip",
+        caption: "What an embedding actually is — 12 of a real model's ~768–4096 dimensions",
+        rows: [
+          { label: "cat", values: [0.82, -0.14, 0.55, 0.09, -0.61, 0.33, -0.05, 0.71, -0.22, 0.18, -0.47, 0.60] },
+          { label: "kitten", values: [0.79, -0.09, 0.61, 0.14, -0.58, 0.29, -0.11, 0.68, -0.19, 0.22, -0.51, 0.55] },
+          { label: "car", values: [-0.31, 0.72, -0.08, -0.65, 0.44, -0.19, 0.83, -0.27, 0.58, -0.36, 0.12, -0.09] },
+        ],
+        note: "Illustrative values, not a real model's actual output. Notice cat and kitten land on nearly the same color in nearly every position — that's what \"similar meaning\" looks like as raw numbers. car's pattern barely matches: different signs, different magnitudes, almost everywhere. A real embedding is this same idea stretched across hundreds or thousands of dimensions.",
+      },
       math: [
         {
           expr: "e<sub>i</sub> = E x<sub>i</sub>",

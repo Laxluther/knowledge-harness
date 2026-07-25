@@ -145,10 +145,6 @@ window.PART_DATA = {
       xp: 90,
       node: { x: 300, y: 300 },
       diagram: {
-        type: "pipeline",
-        stages: ["Ingest + parse", "Chunk", "Embed", "Index", "Query transform", "Retrieve", "Rerank", "Generate + cite"],
-      },
-      diagram2: {
         type: "crew",
         task: "What was Acme Corp's exact Q3 2025 revenue?",
         nodes: [
@@ -171,8 +167,8 @@ window.PART_DATA = {
           { from: "rewrite", to: "retrieve" },
           { from: "retrieve", to: "rerank" },
           { from: "rerank", to: "generate" },
+          { from: "generate", to: "sys" },
         ],
-        roundTrip: true,
         statusSteps: [
           "Raw filings, PDFs and pages come in",
           "Parsed and split into retrievable chunks",
