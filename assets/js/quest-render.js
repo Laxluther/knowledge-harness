@@ -173,6 +173,7 @@ const QuestRender = (() => {
       if (!alreadyCompleted) {
         window.setTimeout(() => Confetti.burstFromEl(scoreEl), 150);
         Astronaut.react(astro, "happy", { speech: "Chapter cleared!" });
+        Astronaut.carry(astro, { ms: 2200 });
         Toast.xp(chapter.xp, chapter.title);
         const wasFirst = Object.values(chapterMap).filter((c) => Progress.isCompleted(c.id)).length === 1;
         if (wasFirst && Progress.awardBadge(part.badges.first.id)) {

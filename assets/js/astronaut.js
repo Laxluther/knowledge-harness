@@ -18,7 +18,15 @@ const Astronaut = (() => {
           <g class="astro-arm astro-arm-left"><rect x="16" y="56" width="12" height="27" rx="6"></rect></g>
           <rect class="astro-body" x="25" y="50" width="50" height="44" rx="18"></rect>
           <rect class="astro-badge" x="43" y="66" width="14" height="10" rx="2"></rect>
-          <g class="astro-arm astro-arm-right"><rect x="72" y="56" width="12" height="27" rx="6"></rect></g>
+          <g class="astro-arm astro-arm-right">
+            <rect x="72" y="56" width="12" height="27" rx="6"></rect>
+            <g class="astro-file">
+              <rect x="69" y="76" width="17" height="21" rx="2"></rect>
+              <line x1="73" y1="83" x2="82" y2="83"></line>
+              <line x1="73" y1="88" x2="82" y2="88"></line>
+              <line x1="73" y1="93" x2="78" y2="93"></line>
+            </g>
+          </g>
           <rect class="astro-antenna" x="48" y="0" width="4" height="12" rx="2"></rect>
           <circle class="astro-antenna-tip" cx="50" cy="2" r="3.4"></circle>
           <circle class="astro-helmet" cx="50" cy="33" r="27"></circle>
@@ -41,6 +49,7 @@ const Astronaut = (() => {
     if (mood) el.classList.add(`is-${mood}`);
     const bubble = el.querySelector("[data-speech]");
     if (bubble && speech) {
+      bubble.classList.remove("is-thinking");
       bubble.textContent = speech;
       bubble.classList.add("is-visible");
       window.clearTimeout(bubble._hideTimer);
@@ -48,8 +57,28 @@ const Astronaut = (() => {
     }
   }
 
+  // Three pulsing dots in the same speech-bubble slot, for a beat of
+  // "thinking" before an answer or message lands.
+  function think(el, { ms = 1600 } = {}) {
+    const bubble = el.querySelector("[data-speech]");
+    if (!bubble) return;
+    bubble.innerHTML = `<span class="astro-dot"></span><span class="astro-dot"></span><span class="astro-dot"></span>`;
+    bubble.classList.add("is-visible", "is-thinking");
+    window.clearTimeout(bubble._hideTimer);
+    bubble._hideTimer = window.setTimeout(() => bubble.classList.remove("is-visible", "is-thinking"), ms);
+  }
+
+  // Pops a small file into the astronaut's hand for a beat — used to mark
+  // "delivering" or "filing away" a completed piece of work.
+  function carry(el, { ms = 2200 } = {}) {
+    el.classList.add("is-carrying");
+    window.clearTimeout(el._carryTimer);
+    el._carryTimer = window.setTimeout(() => el.classList.remove("is-carrying"), ms);
+  }
+
   function mountOnMap(container, x, y, { side = 1 } = {}) {
     const el = create("map");
+    el.classList.add("is-walking");
     el.style.left = `${x + side * 76}px`;
     el.style.top = `${y - 14}px`;
     container.appendChild(el);
@@ -59,9 +88,10 @@ const Astronaut = (() => {
   function mountCompanion() {
     const el = create("companion");
     document.body.appendChild(el);
-    window.setTimeout(() => react(el, null, { speech: "Let's learn something." }), 900);
+    window.setTimeout(() => think(el, { ms: 650 }), 500);
+    window.setTimeout(() => react(el, null, { speech: "Let's learn something." }), 1150);
     return el;
   }
 
-  return { mountOnMap, mountCompanion, react, markup };
+  return { mountOnMap, mountCompanion, react, think, carry, markup };
 })();
