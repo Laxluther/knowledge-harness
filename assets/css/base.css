@@ -71,15 +71,16 @@ h4 {
 }
 
 /* faint circuit-grid backdrop, used on map + hub screens */
+/* soft aged-parchment ground with a warm vignette (no tech grid) */
 .grid-backdrop {
   position: fixed;
   inset: 0;
   z-index: -1;
   background-color: var(--void);
-  background-image: linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 48px 48px;
-  opacity: 0.12;
+  background-image:
+    radial-gradient(120% 90% at 12% 0%, rgba(150, 120, 70, 0.10), transparent 45%),
+    radial-gradient(120% 90% at 88% 100%, rgba(120, 90, 50, 0.12), transparent 45%),
+    radial-gradient(70% 55% at 55% 42%, rgba(255, 250, 235, 0.30), transparent 72%);
   pointer-events: none;
 }
 
@@ -116,12 +117,12 @@ h4 {
   pointer-events: none;
 }
 
+/* faint warm dust motes drifting up the parchment (no glow) */
 .particle {
   position: absolute;
   bottom: -10px;
   border-radius: 50%;
-  background: var(--ion-soft);
-  box-shadow: 0 0 8px 2px var(--ion-glow);
+  background: rgba(140, 110, 60, 0.28);
   opacity: 0;
   animation-name: particle-drift;
   animation-timing-function: linear;
@@ -129,8 +130,7 @@ h4 {
 }
 
 .particle--amber {
-  background: var(--amber-soft);
-  box-shadow: 0 0 8px 2px var(--amber-glow);
+  background: rgba(191, 147, 48, 0.32);
 }
 
 @keyframes particle-drift {

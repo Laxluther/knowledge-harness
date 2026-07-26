@@ -1,46 +1,49 @@
 /* ============================================================
-   Design tokens — "Signal Graph" system
-   Void backdrop + two-color signal system:
-     ion violet   = active / in-progress node or edge
-     circuit amber = completed / mastered node or edge
-   Locked content stays desaturated slate until reachable.
+   Design tokens — "The Grimoire" system
+   Warm parchment backdrop, dark-ink text for long reading, with:
+     crimson (ion)  = active / in-progress node or edge
+     gilt gold (amber) = completed / mastered node or edge
+   Locked content stays a faded ink until reachable.
+   Token NAMES are kept from the old sci-fi system so the whole
+   cascade re-skins from here — only the values changed.
    ============================================================ */
 
 :root {
-  /* ---- color: surfaces ---- */
-  --void: #0a0d16;
-  --void-raised: #0e1220;
-  --panel: #141a2a;
-  --panel-raised: #1b2338;
-  --line: #262e45;
-  --line-bright: #3a4568;
+  /* ---- color: surfaces (parchment + vellum) ---- */
+  --void: #e9dcbe;
+  --void-raised: #e3d4b2;
+  --panel: #f2e8cf;
+  --panel-raised: #f8f1e0;
+  --line: #d6c6a2;
+  --line-bright: #c0a869;
 
-  /* ---- color: signal ---- */
-  --ion: #7c5cff;
-  --ion-soft: #a48bff;
-  --ion-dim: #3d3266;
-  --ion-glow: rgba(124, 92, 255, 0.45);
+  /* ---- color: accent — crimson (kept under the --ion name) ---- */
+  --ion: #a51f2b;
+  --ion-soft: #c02a37;
+  --ion-dim: #ecd2c3;
+  --ion-glow: rgba(165, 31, 43, 0.28);
 
-  --amber: #ffb454;
-  --amber-soft: #ffd08a;
-  --amber-dim: #6b5327;
-  --amber-glow: rgba(255, 180, 84, 0.45);
+  /* ---- color: accent — gilt gold (kept under the --amber name) ---- */
+  --amber: #bf9330;
+  --amber-soft: #d9ab44;
+  --amber-dim: #eaddb2;
+  --amber-glow: rgba(191, 147, 48, 0.38);
 
-  --locked: #3a4258;
-  --locked-line: #2a3148;
+  --locked: #b0a07d;
+  --locked-line: #cabf9c;
 
-  --danger: #ff6b6b;
+  --danger: #bd2a2a;
 
-  /* ---- color: text ---- */
-  --text: #e8eaf2;
-  --text-muted: #8891aa;
-  --text-faint: #545d78;
-  --text-on-amber: #241705;
-  --text-on-ion: #100a29;
+  /* ---- color: text (ink) ---- */
+  --text: #2c2216;
+  --text-muted: #6f5f43;
+  --text-faint: #9a8863;
+  --text-on-amber: #2c2216;
+  --text-on-ion: #f6ecd6;
 
   /* ---- type ---- */
-  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  --font-body: "EB Garamond", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", "Consolas", monospace;
 
   /* ---- spacing scale ---- */
@@ -60,10 +63,10 @@
   --radius-lg: 20px;
   --radius-full: 999px;
 
-  /* ---- elevation ---- */
-  --shadow-panel: 0 8px 32px rgba(0, 0, 0, 0.45);
-  --shadow-node: 0 0 24px var(--ion-glow);
-  --shadow-node-amber: 0 0 24px var(--amber-glow);
+  /* ---- elevation (warm ink shadows for a light ground) ---- */
+  --shadow-panel: 0 10px 30px rgba(92, 64, 26, 0.16);
+  --shadow-node: 0 3px 10px rgba(120, 90, 40, 0.28);
+  --shadow-node-amber: 0 3px 10px rgba(150, 120, 50, 0.32);
 
   /* ---- motion ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);

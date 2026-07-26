@@ -26,7 +26,7 @@ const QuestRender = (() => {
     const chapterMap = Object.fromEntries(part.chapters.map((c) => [c.id, c]));
 
     Particles.mount(16);
-    astro = Astronaut.mountCompanion();
+    astro = Pixel.mountCompanion();
     document.body.insertAdjacentHTML("afterbegin", `<div class="grid-backdrop"></div>`);
     document.body.insertAdjacentHTML(
       "afterbegin",
@@ -53,14 +53,13 @@ const QuestRender = (() => {
 
       <section class="quest-section container" data-section>
         <div class="quest-section__label"><span class="quest-section__icon" style="font-size:1.1rem">${SECTION_ICONS.concept}</span><span class="eyebrow">The Concept</span></div>
+        ${chapter.plain ? `<div class="plain-note"><span class="plain-note__tag">In plain terms</span><div class="prose">${chapter.plain}</div></div>` : ""}
         <div class="prose">${chapter.hook}${chapter.explain}</div>
       </section>
 
       <section class="quest-section container" data-section>
         <div class="quest-section__label"><span class="quest-section__icon" style="font-size:1.1rem">${SECTION_ICONS.diagram}</span><span class="eyebrow">Visualize It</span></div>
-        ${App.renderDiagram(chapter.diagram)}
-        ${chapter.diagram2 ? `<div style="height:var(--sp-4)"></div>${App.renderDiagram(chapter.diagram2)}` : ""}
-        ${chapter.diagram3 ? `<div style="height:var(--sp-4)"></div>${App.renderDiagram(chapter.diagram3)}` : ""}
+        ${App.renderDiagramSet(chapter)}
       </section>
 
       ${chapter.math ? `<section class="quest-section container" data-section>
@@ -133,11 +132,11 @@ const QuestRender = (() => {
           card.querySelectorAll(".q-option").forEach((b) => (b.disabled = true));
           if (oi === q.answer) {
             btn.classList.add("is-correct");
-            Astronaut.react(astro, "happy", { speech: pick(["Nice!", "Exactly.", "Correct!", "Yes!"]) });
+            Pixel.react(astro, "happy", { speech: pick(["Nice!", "Exactly.", "Correct!", "Yes!"]) });
           } else {
             btn.classList.add("is-wrong");
             card.querySelector(`[data-oi="${q.answer}"]`).classList.add("is-correct");
-            Astronaut.react(astro, "sad", { speech: pick(["Close — check the highlight", "Not quite", "Read the note below"]) });
+            Pixel.react(astro, "sad", { speech: pick(["Close - check the highlight", "Not quite", "Read the note below"]) });
           }
           card.querySelector(".q-card__explain").classList.add("is-visible");
           answers[qi] = oi === q.answer;
@@ -167,13 +166,13 @@ const QuestRender = (() => {
     if (passed) {
       const { alreadyCompleted, xp, streak } = Progress.completeChapter(chapter.id, chapter.xp);
       msgEl.textContent = alreadyCompleted
-        ? "Already mastered — nice review."
+        ? "Already mastered - nice review."
         : "Chapter cleared. The next node on the map just lit up.";
 
       if (!alreadyCompleted) {
         window.setTimeout(() => Confetti.burstFromEl(scoreEl), 150);
-        Astronaut.react(astro, "happy", { speech: "Chapter cleared!" });
-        Astronaut.carry(astro, { ms: 2200 });
+        Pixel.react(astro, "happy", { speech: "Chapter cleared!" });
+        Pixel.carry(astro, { ms: 2200 });
         Toast.xp(chapter.xp, chapter.title);
         const wasFirst = Object.values(chapterMap).filter((c) => Progress.isCompleted(c.id)).length === 1;
         if (wasFirst && Progress.awardBadge(part.badges.first.id)) {
@@ -200,9 +199,9 @@ const QuestRender = (() => {
         refreshStatusBar();
       }
     } else {
-      msgEl.textContent = "Under 75% — scroll up, re-read the concept, and try again.";
+      msgEl.textContent = "Under 75% - scroll up, re-read the concept, and try again.";
       actionsEl.innerHTML = `<button class="btn btn--ghost" onclick="location.reload()">Retry challenge</button>`;
-      Astronaut.react(astro, "sad", { speech: "So close — try again" });
+      Pixel.react(astro, "sad", { speech: "So close - try again" });
       return;
     }
 

@@ -83,7 +83,7 @@ const MapRenderer = (() => {
         <div class="map-node__chip${spinClass}"${planetAttr}>
           <div class="map-node__surface" style="animation-delay:${spinDelay}s"></div>
           <div class="map-node__shade"></div>
-          <span class="map-node__glyph">${n.n ?? ""}</span>
+          <span class="map-node__glyph">${n.icon || (n.n ?? "")}</span>
         </div>
         <div class="map-node__ring"></div>
         ${marker}
@@ -105,11 +105,10 @@ const MapRenderer = (() => {
     });
 
     const focusNode = focusId ? nodeById[focusId] : null;
-    if (focusNode && typeof Astronaut !== "undefined") {
+    if (focusNode && typeof Pixel !== "undefined") {
+      Pixel.mountOnMap(canvas, focusNode.x, focusNode.y);
+    } else if (focusNode && typeof Astronaut !== "undefined") {
       Astronaut.mountOnMap(canvas, focusNode.x, focusNode.y, { side: 1 });
-    }
-    if (focusNode && typeof Rocket !== "undefined") {
-      Rocket.mountOnMap(canvas, focusNode.x, focusNode.y, { side: -1 });
     }
     setupPanZoom(container, canvas, vbW, vbH, nodes, focusNode);
   }

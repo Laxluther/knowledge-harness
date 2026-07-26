@@ -9,7 +9,7 @@
 <link rel="icon" href="../assets/icon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/css/tokens.css" />
 <link rel="stylesheet" href="../assets/css/base.css" />
 <link rel="stylesheet" href="../assets/css/components.css" />
@@ -40,6 +40,7 @@
 <script src="../assets/js/confetti.js"></script>
 <script src="../assets/js/particles.js"></script>
 <script src="../assets/js/app.js"></script>
+<script src="../assets/js/pixel.js"></script>
 <script src="../assets/js/astronaut.js"></script>
 <script src="../content/part-1.js"></script>
 <script>
@@ -70,13 +71,12 @@
     <article class="revise-chapter" id="${c.id}">
       <span class="eyebrow revise-chapter__eyebrow">CHAPTER ${String(c.n).padStart(2, "0")}</span>
       <h2>${c.title}</h2>
+      ${c.plain ? `<div class="plain-note"><span class="plain-note__tag">In plain terms</span><div class="prose">${c.plain}</div></div>` : ""}
       <div class="prose">${c.hook}${c.explain}</div>
 
       <div class="revise-block">
         <div class="revise-block__label">Visualize</div>
-        ${App.renderDiagram(c.diagram, { animated: false })}
-        ${c.diagram2 ? `<div style="height:12px"></div>${App.renderDiagram(c.diagram2, { animated: false })}` : ""}
-        ${c.diagram3 ? `<div style="height:12px"></div>${App.renderDiagram(c.diagram3, { animated: false })}` : ""}
+        ${App.renderDiagramSet(c, { animated: false, gap: "12px" })}
       </div>
 
       ${c.math ? `<div class="revise-block">

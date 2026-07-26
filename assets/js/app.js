@@ -36,10 +36,16 @@ const App = (() => {
         return renderRadar(spec);
       case "crew":
         return renderCrew(spec);
+      case "snake":
+        return renderSnake(spec);
       case "vectorstrip":
         return renderVectorStrip(spec);
+      case "figure":
+        return renderFigure(spec);
       case "scene":
         return renderScene(spec);
+      case "pixscene":
+        return typeof Pixel !== "undefined" ? Pixel.renderScene(spec) : "";
       default:
         return "";
     }
@@ -72,7 +78,7 @@ const App = (() => {
         ${stationsHtml}
         <div class="scene-actor" id="${id}-actor">
           <div class="scene-actor__bubble" id="${id}-bubble" data-speech></div>
-          ${Astronaut.markup()}
+          ${Pixel.markup("red", 44)}
         </div>
       </div>
       <div class="scene-answer" id="${id}-answer">${spec.answer || ""}</div>
@@ -84,7 +90,7 @@ const App = (() => {
     root.querySelectorAll('[data-diagram-type="scene"]').forEach((diagramEl) => {
       const id = diagramEl.id;
       const spec = registry[id];
-      if (!spec || spec.__started || typeof Astronaut === "undefined") return;
+      if (!spec || spec.__started || typeof Pixel === "undefined") return;
       spec.__started = true;
 
       const stage = diagramEl.querySelector(".scene-stage");
@@ -419,7 +425,7 @@ const App = (() => {
       )
       .join("");
     return `<div class="diagram">
-      <div class="diagram-bars__label" id="${id}-caption">Random initialization — before training</div>
+      <div class="diagram-bars__label" id="${id}-caption">Random initialization - before training</div>
       <div class="embed-panel" id="${id}">${dots}</div>
     </div>`;
   }
@@ -439,7 +445,7 @@ const App = (() => {
           el.style.left = `${6 + Math.random() * 84}%`;
           el.style.top = `${10 + Math.random() * 76}%`;
         });
-        if (caption) caption.textContent = "Random initialization — before training";
+        if (caption) caption.textContent = "Random initialization - before training";
       }
 
       function trained() {
@@ -448,7 +454,7 @@ const App = (() => {
           el.style.left = `${p.x}%`;
           el.style.top = `${p.y}%`;
         });
-        if (caption) caption.textContent = "After training — similar meaning ends up as nearby vectors";
+        if (caption) caption.textContent = "After training - similar meaning ends up as nearby vectors";
       }
 
       scramble();
@@ -666,7 +672,7 @@ const App = (() => {
     return `<div class="diagram" id="${id}" data-diagram-type="reward">
       <div class="rw-prompt">Prompt → <span>"${spec.prompt}"</span></div>
       <div class="rw-candidates">${card("a", spec.a)}${card("b", spec.b)}</div>
-      <div class="rw-climb-label">P(policy picks the safer response) over training <span id="${id}-stepnum">— step 1</span></div>
+      <div class="rw-climb-label">P(policy picks the safer response) over training <span id="${id}-stepnum">- step 1</span></div>
       <div class="rw-climb-track"><div class="rw-climb-fill" id="${id}-climb"></div></div>
     </div>`;
   }
@@ -690,7 +696,7 @@ const App = (() => {
 
       function render() {
         climb.style.width = `${spec.steps[i]}%`;
-        stepLabel.textContent = `— step ${i + 1}: ${spec.steps[i]}%`;
+        stepLabel.textContent = `- step ${i + 1}: ${spec.steps[i]}%`;
       }
 
       window.setTimeout(() => {
@@ -761,7 +767,31 @@ const App = (() => {
     });
   }
 
-  /* ---- Part V: crew mascots acting out an orchestration pattern ---- */
+  // A small tome that agents hand to each other — the "work product" moving
+  // through the crew, replacing the abstract dot packet.
+  const CREW_BOOK = `<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true">
+    <rect x="5" y="4" width="14" height="16" rx="1.6" fill="var(--panel-raised)" stroke="var(--ion)" stroke-width="1.7"/>
+    <line x1="8.7" y1="4.4" x2="8.7" y2="19.6" stroke="var(--ion)" stroke-width="1.3"/>
+    <line x1="11" y1="8.5" x2="16" y2="8.5" stroke="var(--amber)" stroke-width="1.3"/>
+    <line x1="11" y1="11.5" x2="16" y2="11.5" stroke="var(--amber)" stroke-width="1.3"/>
+    <line x1="11" y1="14.5" x2="14.5" y2="14.5" stroke="var(--amber)" stroke-width="1.3"/>
+  </svg>`;
+
+  // A bespoke, self-contained illustration: the content supplies a themed
+  // inline SVG (using the design tokens as colours) plus an optional title and
+  // caption. For one-off concept diagrams that don't fit a reusable engine.
+  function renderFigure(spec) {
+    const id = `fig-${diagramSeq++}`;
+    return `<div class="diagram fig" id="${id}" data-diagram-type="figure">
+      ${spec.title ? `<div class="fig__title">${spec.title}</div>` : ""}
+      <div class="fig__body">${spec.svg}</div>
+      ${spec.caption ? `<div class="fig__caption">${spec.caption}</div>` : ""}
+    </div>`;
+  }
+
+  /* ---- Part V: crew mascots acting out an orchestration pattern. A tome
+     travels between them (parallel to the line, never over a character), and
+     the receiving agent narrates the step in a thinking bubble. ---- */
   function renderCrew(spec) {
     const id = `crew-${diagramSeq++}`;
     registry[id] = spec;
@@ -773,25 +803,22 @@ const App = (() => {
     const tierKeys = Object.keys(tiers)
       .map(Number)
       .sort((a, b) => a - b);
-    const tierGap = 118;
+    const tierGap = 150; // room for a thinking bubble in the gutter between tiers
     // Kept in sync with .crew-stage's max-width in quest.css — this is the
     // coordinate system nodes are positioned in, so a mismatch leaves nodes
     // spilling past the actual rendered box on narrow viewports.
     const stageW = CREW_STAGE_W;
+    const topPad = 78; // room for a thinking bubble above the top tier
     const positions = {};
     tierKeys.forEach((t, ti) => {
       const row = tiers[t];
       const gapX = stageW / (row.length + 1);
       row.forEach((n, i) => {
-        positions[n.id] = { x: gapX * (i + 1), y: 54 + ti * tierGap };
+        positions[n.id] = { x: gapX * (i + 1), y: topPad + ti * tierGap };
       });
     });
-    const stageH = 54 + (tierKeys.length - 1) * tierGap + 70;
+    const stageH = topPad + (tierKeys.length - 1) * tierGap + 72;
 
-    // A flow hop can carry a `via` waypoint to route it as a curve that
-    // bows out around the rest of the diagram, instead of a straight line
-    // cutting back through the middle of it (e.g. a "return to sender" hop
-    // crossing back over every stage it just passed through).
     const edgesSvg = spec.flow
       .map((f) => {
         const a = positions[f.from];
@@ -806,14 +833,18 @@ const App = (() => {
     const nodesHtml = spec.nodes
       .map((n) => {
         const p = positions[n.id];
+        const bubble = `<div class="crew-bubble" id="${id}-bub-${n.id}"></div>`;
         if (n.role === "board") {
           return `<div class="crew-board" id="${id}-${n.id}" style="left:${p.x}px;top:${p.y}px">
+            ${bubble}
             <div class="crew-board__icon">▤</div>
             <div class="crew-node__label">${n.label}</div>
           </div>`;
         }
-        return `<div class="crew-mascot${n.role === "captain" ? " is-captain" : ""}" id="${id}-${n.id}" style="left:${p.x}px;top:${p.y}px">
-          ${Astronaut.markup()}
+        const isCaptain = n.role === "captain";
+        return `<div class="crew-mascot${isCaptain ? " is-captain" : ""}" id="${id}-${n.id}" style="left:${p.x}px;top:${p.y}px">
+          ${bubble}
+          ${Pixel.markup(isCaptain ? "wizard" : "red", isCaptain ? 52 : 40)}
           <div class="crew-node__label">${n.label}</div>
         </div>`;
       })
@@ -824,9 +855,8 @@ const App = (() => {
       <div class="crew-stage" style="height:${stageH}px">
         <svg class="crew-svg" width="${stageW}" height="${stageH}">${edgesSvg}</svg>
         ${nodesHtml}
-        <div class="crew-packet" id="${id}-packet"></div>
+        <div class="crew-packet" id="${id}-packet">${CREW_BOOK}</div>
       </div>
-      <div class="crew-status" id="${id}-status">${(spec.statusSteps && spec.statusSteps[0]) || ""}</div>
     </div>`;
   }
 
@@ -834,13 +864,13 @@ const App = (() => {
     root.querySelectorAll('[data-diagram-type="crew"]').forEach((diagramEl) => {
       const id = diagramEl.id;
       const spec = registry[id];
-      if (!spec || spec.__started || typeof Astronaut === "undefined") return;
+      if (!spec || spec.__started || typeof Pixel === "undefined") return;
       spec.__started = true;
 
       const stage = diagramEl.querySelector(".crew-stage");
       const packet = document.getElementById(`${id}-packet`);
-      const statusEl = document.getElementById(`${id}-status`);
       const nodeEl = (nid) => document.getElementById(`${id}-${nid}`);
+      const bubbleEl = (nid) => document.getElementById(`${id}-bub-${nid}`);
       const wait = (ms) => new Promise((r) => window.setTimeout(r, ms));
 
       function centerOf(el) {
@@ -849,78 +879,92 @@ const App = (() => {
         return { x: r.left - sr.left + r.width / 2, y: r.top - sr.top + r.height / 2 };
       }
 
-      // Converts a point from the raw CREW_STAGE_W coordinate system (what
-      // node positions and SVG `via` control points are authored in) into
-      // actual on-screen pixels relative to the stage — matching centerOf's
-      // space so a waypoint lines up with real node positions even if
-      // .crew-stage has shrunk below CREW_STAGE_W on a narrow viewport.
-      function stagePoint(rawX, rawY) {
-        const sr = stage.getBoundingClientRect();
-        return { x: (rawX / CREW_STAGE_W) * sr.width, y: rawY };
-      }
-
       function bounce(el) {
         if (!el) return;
         el.classList.add("is-receiving");
         window.setTimeout(() => el.classList.remove("is-receiving"), 620);
       }
 
+      // One thinking bubble at a time — the agent currently holding the tome.
+      let shownBub = null;
       let stepI = 0;
-      function status() {
-        if (statusEl && spec.statusSteps && spec.statusSteps.length) {
-          statusEl.textContent = spec.statusSteps[stepI % spec.statusSteps.length];
-          stepI++;
+      function thinkOn(nid, text, below) {
+        if (shownBub) shownBub.classList.remove("is-visible");
+        const bub = bubbleEl(nid);
+        if (bub) {
+          bub.textContent = text || "";
+          bub.classList.toggle("crew-bubble--below", !!below);
+          bub.classList.add("is-visible");
+          shownBub = bub;
         }
+      }
+      function think(nid) {
+        const steps = spec.statusSteps || [];
+        thinkOn(nid, steps[stepI % (steps.length || 1)]);
+        stepI++;
+      }
+
+      function placePacket(p, instant) {
+        if (instant) packet.style.transition = "none";
+        packet.style.left = `${p.x}px`;
+        packet.style.top = `${p.y}px`;
+        if (instant) { void packet.offsetWidth; packet.style.transition = ""; }
+      }
+
+      // Carry the tome in a lane offset perpendicular to the line, so it runs
+      // parallel to the connector and never sits on a character.
+      function laneEnds(a, b) {
+        const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+        // Clear of the ~20px-wide character plus the ~10px-wide tome, with a
+        // small gap so the book never touches the sprite.
+        const off = 26, px = (-dy / len) * off, py = (dx / len) * off;
+        return { a: { x: a.x + px, y: a.y + py }, b: { x: b.x + px, y: b.y + py } };
+      }
+
+      async function hop(fromId, toId) {
+        const lane = laneEnds(centerOf(nodeEl(fromId)), centerOf(nodeEl(toId)));
+        placePacket(lane.a, true);
+        packet.style.opacity = "1";
+        void packet.offsetWidth;
+        placePacket(lane.b, false); // slow glide (CSS ~1000ms ease-in-out)
+        await wait(1050);
+        bounce(nodeEl(toId));
+        think(toId);
+        await wait(1700); // dwell so the bubble can be read
+        packet.style.opacity = "0";
+        await wait(320);
       }
 
       async function runFlow(reverse) {
         const hops = reverse ? [...spec.flow].map((f) => ({ from: f.to, to: f.from })).reverse() : spec.flow;
         if (spec.parallel) {
-          hops.forEach((f) => bounce(nodeEl(f.to)));
-          status();
-          await wait(900);
-        } else {
-          for (const f of hops) {
-            const a = centerOf(nodeEl(f.from));
-            const b = centerOf(nodeEl(f.to));
-            packet.style.transition = "none";
-            packet.style.opacity = "1";
-            packet.style.left = `${a.x}px`;
-            packet.style.top = `${a.y}px`;
-            void packet.offsetWidth;
-            packet.style.transition = "";
-            if (f.via) {
-              // Bend through the waypoint in two legs so the packet follows
-              // the same curved detour as the SVG line, instead of cutting
-              // straight back through the rest of the diagram.
-              const via = stagePoint(f.via.x, f.via.y);
-              packet.style.left = `${via.x}px`;
-              packet.style.top = `${via.y}px`;
-              await wait(320);
-              packet.style.left = `${b.x}px`;
-              packet.style.top = `${b.y}px`;
-              await wait(320);
-            } else {
-              packet.style.left = `${b.x}px`;
-              packet.style.top = `${b.y}px`;
-              await wait(540);
-            }
-            bounce(nodeEl(f.to));
-            status();
-            packet.style.opacity = "0";
-            await wait(280);
+          // Fan out: every recipient pulses together, and the phases are
+          // narrated in one bubble below the coordinator — a single centred
+          // caption instead of colliding per-agent bubbles.
+          const dispatcher = hops[0].from;
+          const steps = spec.statusSteps || [];
+          for (let k = 0; k < steps.length; k++) {
+            hops.forEach((f) => bounce(nodeEl(f.to)));
+            thinkOn(dispatcher, steps[k], true);
+            await wait(2300);
           }
+          if (shownBub) { shownBub.classList.remove("is-visible"); shownBub = null; }
+        } else {
+          for (const f of hops) await hop(f.from, f.to);
         }
       }
 
       async function cycle() {
         await runFlow(false);
-        if (spec.roundTrip) {
-          await wait(260);
+        // Parallel already narrates its full dispatch→work→report→merge arc,
+        // so it doesn't need a reverse pass (which would bubble off the top).
+        if (spec.roundTrip && !spec.parallel) {
+          await wait(300);
           await runFlow(true);
         }
-        bounce(nodeEl(spec.nodes[0].id));
-        await wait(1900);
+        await wait(1400);
+        if (shownBub) { shownBub.classList.remove("is-visible"); shownBub = null; }
+        await wait(600);
       }
 
       (async function loop() {
@@ -928,6 +972,181 @@ const App = (() => {
           await cycle();
         }
       })();
+    });
+  }
+
+  /* ---- Serpentine pipeline: a single sprite walks a snaking chain of
+     labelled stations, narrating the current step in a thinking bubble
+     above its head. Connectors run edge-to-edge (never through a label)
+     and the whole thing flows top-to-bottom so it uses vertical space
+     instead of a wide horizontal strip. ---- */
+  const SNAKE_W = 320; // viewBox coordinate width (scales to fit via %)
+  // Shared geometry so renderSnake and activateSnake can never drift apart.
+  // Boustrophedon: each row reverses direction, so consecutive steps are
+  // always horizontally adjacent (same row) or vertically adjacent (same
+  // column) — every connector is a clean straight segment, edge to edge.
+  function snakeLayout(spec) {
+    const COLS = spec.cols || 2;
+    const boxW = 82, boxH = 38, rowGap = 124, firstTop = 196;
+    const wizX = SNAKE_W / 2, wizCY = 100, wizH = 50;
+    const colX = COLS === 2 ? [92, 228]
+      : Array.from({ length: COLS }, (_, c) => (SNAKE_W / (COLS + 1)) * (c + 1));
+    const steps = spec.steps.map((s, i) => {
+      const row = Math.floor(i / COLS);
+      const inRow = i % COLS;
+      const col = row % 2 === 0 ? inRow : COLS - 1 - inRow;
+      const x = colX[col];
+      const top = firstTop + row * rowGap;
+      return { ...s, i, row, col, x, top, cy: top + boxH / 2 };
+    });
+    const rows = Math.ceil(steps.length / COLS);
+    const stageH = firstTop + (rows - 1) * rowGap + boxH + 28;
+    return { COLS, boxW, boxH, wizX, wizCY, wizH, steps, stageH };
+  }
+
+  function renderSnake(spec) {
+    const id = `snake-${diagramSeq++}`;
+    registry[id] = spec;
+    const { boxW, boxH, wizX, wizCY, wizH, steps, stageH } = snakeLayout(spec);
+    const pctX = (x) => `${((x / SNAKE_W) * 100).toFixed(3)}%`;
+
+    let edges = "";
+    for (let i = 0; i < steps.length - 1; i++) {
+      const a = steps[i], b = steps[i + 1];
+      if (a.row === b.row) {
+        const x1 = a.x + (b.x > a.x ? boxW / 2 : -boxW / 2);
+        const x2 = b.x + (b.x > a.x ? -boxW / 2 : boxW / 2);
+        edges += `<line x1="${x1}" y1="${a.cy}" x2="${x2}" y2="${a.cy}" class="snake-edge" marker-end="url(#sk-arrow-${id})"/>`;
+      } else {
+        edges += `<line x1="${a.x}" y1="${a.cy + boxH / 2}" x2="${a.x}" y2="${b.cy - boxH / 2}" class="snake-edge" marker-end="url(#sk-arrow-${id})"/>`;
+      }
+    }
+
+    // Wizard (the user-facing agent) hands the query down to the first
+    // station; the finished answer loops back up the left gutter to it.
+    const first = steps[0], last = steps[steps.length - 1];
+    const midY = (wizCY + wizH / 2 + first.top) / 2;
+    const intro = `<path d="M ${wizX} ${wizCY + wizH / 2} L ${wizX} ${midY} L ${first.x} ${midY} L ${first.x} ${first.top}" class="snake-edge" fill="none" marker-end="url(#sk-arrow-${id})"/>`;
+    const gx = 12;
+    const ret = `<path d="M ${last.x - boxW / 2} ${last.cy} L ${gx + 8} ${last.cy} Q ${gx} ${last.cy} ${gx} ${last.cy - 8} L ${gx} ${wizCY + 8} Q ${gx} ${wizCY} ${gx + 8} ${wizCY} L ${wizX - wizH / 2 - 2} ${wizCY}" class="snake-return" id="${id}-return" fill="none" marker-end="url(#sk-arrow-gold-${id})"/>`;
+
+    const boxesHtml = steps
+      .map(
+        (s) => `<div class="snake-box" id="${id}-box-${s.i}" style="left:${pctX(s.x)};top:${s.top}px;width:${boxW}px">
+          ${s.glyph ? `<div class="snake-box__glyph">${s.glyph}</div>` : ""}
+          <div class="snake-box__label">${s.label}</div>
+        </div>`
+      )
+      .join("");
+
+    return `<div class="diagram snake-flow" id="${id}" data-diagram-type="snake">
+      <div class="snake-stage" style="height:${stageH}px">
+        <svg class="snake-svg" viewBox="0 0 ${SNAKE_W} ${stageH}" height="${stageH}" preserveAspectRatio="none">
+          <defs>
+            <marker id="sk-arrow-${id}" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="var(--line-bright)"/></marker>
+            <marker id="sk-arrow-gold-${id}" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="var(--amber)"/></marker>
+          </defs>
+          ${ret}${intro}${edges}
+        </svg>
+        ${boxesHtml}
+        <div class="snake-wizard" id="${id}-wizard" style="left:${pctX(wizX)};top:${wizCY}px">
+          <div class="snake-bubble snake-bubble--wizard" id="${id}-wizbubble"></div>
+          <div class="snake-wizard__art">${Pixel.markup("wizard", wizH)}</div>
+        </div>
+        <div class="snake-actor" id="${id}-actor">
+          <div class="snake-bubble" id="${id}-bubble"></div>
+          <div class="snake-actor__art">${Pixel.markup("red", 32)}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function activateSnake(root) {
+    root.querySelectorAll('[data-diagram-type="snake"]').forEach((diagramEl) => {
+      const id = diagramEl.id;
+      const spec = registry[id];
+      if (!spec || spec.__started || typeof Pixel === "undefined") return;
+      spec.__started = true;
+
+      const { boxW, wizX, wizCY, wizH, steps } = snakeLayout(spec);
+      const actor = document.getElementById(`${id}-actor`);
+      const bubble = document.getElementById(`${id}-bubble`);
+      const wizBubble = document.getElementById(`${id}-wizbubble`);
+      const returnEl = document.getElementById(`${id}-return`);
+      const wait = (ms) => new Promise((r) => window.setTimeout(r, ms));
+      const pct = (x) => `${((x / SNAKE_W) * 100).toFixed(3)}%`;
+
+      // Stand beside the box on its inner side (toward centre), level with its
+      // top edge — clear of every connector, near enough to the centre that
+      // the thinking bubble reads without clipping the stage.
+      const standAt = (s) => ({ x: s.x + (s.col === 0 ? 1 : -1) * (boxW / 2 + 17), y: s.top - 2 });
+      // Beside the wizard (not on top of it) when handing off the query/answer,
+      // and clear of the return path that arrives on the wizard's left.
+      const wizStand = { x: wizX + wizH / 2 + 22, y: wizCY };
+      let cur = wizStand;
+
+      // Walk time scales with distance so a long vertical drop takes longer
+      // than a short nudge — constant, natural pace rather than a fixed snap.
+      const moveDur = (a, b) => Math.max(560, Math.min(1400, Math.hypot(b.x - a.x, b.y - a.y) * 8.5));
+      function moveTo(c, instant) {
+        const dur = instant ? 0 : moveDur(cur, c);
+        if (instant) {
+          actor.style.transition = "none";
+        } else {
+          actor.style.transition = "";
+          actor.style.transitionDuration = `${dur}ms`;
+        }
+        actor.style.left = pct(c.x);
+        actor.style.top = `${c.y}px`;
+        if (instant) { void actor.offsetWidth; actor.style.transition = ""; }
+        cur = c;
+        return dur;
+      }
+      const show = (el, text) => { el.textContent = text || ""; el.classList.add("is-visible"); };
+      const hide = (el) => el.classList.remove("is-visible");
+      const box = (i) => document.getElementById(`${id}-box-${i}`);
+
+      moveTo(wizStand, true);
+
+      async function cycle() {
+        // 1. The wizard (user-facing agent) receives the query.
+        show(wizBubble, `"${spec.task}"`);
+        await wait(2800);
+        hide(wizBubble);
+        // 2. The courier walks the pipeline, narrating each stage in its bubble.
+        for (let i = 0; i < steps.length; i++) {
+          hide(bubble);
+          actor.classList.add("is-walking");
+          const dur = moveTo(standAt(steps[i]), false);
+          await wait(dur + 90);
+          actor.classList.remove("is-walking");
+          const b = box(i);
+          if (b) b.classList.add("is-active");
+          show(bubble, steps[i].say);
+          const say = steps[i].say || "";
+          await wait(Math.min(4000, 1800 + say.length * 20)); // slow, readable
+          if (b) { b.classList.remove("is-active"); b.classList.add("is-done"); }
+        }
+        // 3. The finished answer is carried back to the wizard.
+        hide(bubble);
+        if (returnEl) returnEl.classList.add("is-live");
+        actor.classList.add("is-walking", "is-carrying");
+        const backDur = moveTo(wizStand, false);
+        await wait(backDur + 120);
+        actor.classList.remove("is-walking");
+        show(wizBubble, spec.answer || "Grounded, cited answer delivered.");
+        await wait(3200);
+        actor.classList.remove("is-carrying");
+        if (returnEl) returnEl.classList.remove("is-live");
+        hide(wizBubble);
+        // 4. Reset for the next loop.
+        await wait(500);
+        steps.forEach((_, i) => { const b = box(i); if (b) b.classList.remove("is-done", "is-active"); });
+        moveTo(wizStand, true);
+        await wait(400);
+      }
+
+      (async function loop() { for (;;) await cycle(); })();
     });
   }
 
@@ -943,7 +1162,24 @@ const App = (() => {
     activateReward(root);
     activateRadar(root);
     activateCrew(root);
+    activateSnake(root);
     activateScene(root);
+    if (typeof Pixel !== "undefined") Pixel.activateScenes(root);
+  }
+
+  // Renders every diagram a chapter defines — `diagram`, then `diagram2`,
+  // `diagram3`, ... for as many as are present. Content isn't capped at a
+  // fixed number of slots, so a concept can carry as many figures as it needs.
+  function renderDiagramSet(chapter, opts) {
+    const gap = (opts && opts.gap) || "var(--sp-4)";
+    const out = [];
+    for (let i = 1; i <= 12; i++) {
+      const spec = chapter[i === 1 ? "diagram" : `diagram${i}`];
+      if (!spec) continue;
+      if (out.length) out.push(`<div style="height:${gap}"></div>`);
+      out.push(renderDiagram(spec, opts));
+    }
+    return out.join("");
   }
 
   function renderFormulas(math) {
@@ -1004,5 +1240,5 @@ const App = (() => {
     ripple.addEventListener("animationend", () => ripple.remove());
   });
 
-  return { renderDiagram, renderFormulas, activateBars, activateAttention, activateEmbed, activateDiagrams, buildStatusBar, xpPct };
+  return { renderDiagram, renderDiagramSet, renderFormulas, activateBars, activateAttention, activateEmbed, activateDiagrams, buildStatusBar, xpPct };
 })();
