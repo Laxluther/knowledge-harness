@@ -236,7 +236,7 @@ window.PART_DATA = {
     },
     {
       id: "p3-c3",
-      plain: "<p>Before documents can be searched, they're cut into bite-size pieces. Cut them badly - mid-sentence, or too big - and search quality drops no matter what else you do. It's like indexing a book: sensible sections are findable; random splits aren't.</p>",
+      plain: "<p>Before documents can be searched, they're cut into bite-size pieces. Cut them badly - mid-sentence, or too big - and search quality drops no matter what else you do. It's like indexing a book: sensible sections are findable; random splits aren't. There are many ways to make the cuts, from counting characters to having an AI read the whole document first and decide.</p>",
       n: 3,
       title: "Chunking Strategies",
       short: "The quiet decision that caps everything downstream",
@@ -283,21 +283,134 @@ window.PART_DATA = {
         </svg>`,
         caption: "There's no universally correct chunk size: smaller means a sharper relevance signal but more lost context, larger means the opposite. Overlap buys back some of the context lost at the cut points, at the cost of storing the same text more than once.",
       },
+      diagram3: {
+        type: "figure",
+        title: "Hierarchical chunking - search small, return big",
+        svg: `<svg viewBox="0 0 360 208" role="img" aria-label="Small child chunks are embedded for search but their large parent chunk is returned">
+          <defs>
+            <marker id="ck-a" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="var(--amber)"/></marker>
+            <marker id="ck-i" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="var(--ion)"/></marker>
+          </defs>
+          <text x="8" y="14" font-size="9" fill="var(--text-faint)">PARENT - the whole section, stored but not embedded</text>
+          <rect x="8" y="20" width="344" height="46" rx="6" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="1.8"/>
+          <rect x="16" y="28" width="104" height="30" rx="4" fill="var(--panel-raised)" stroke="var(--line-bright)" stroke-width="1.4"/>
+          <text x="68" y="47" text-anchor="middle" font-size="8" fill="var(--text-faint)">child 1</text>
+          <rect x="128" y="28" width="104" height="30" rx="4" fill="var(--ion-dim)" stroke="var(--ion)" stroke-width="1.8"/>
+          <text x="180" y="47" text-anchor="middle" font-size="8">child 2 ← matched</text>
+          <rect x="240" y="28" width="104" height="30" rx="4" fill="var(--panel-raised)" stroke="var(--line-bright)" stroke-width="1.4"/>
+          <text x="292" y="47" text-anchor="middle" font-size="8" fill="var(--text-faint)">child 3</text>
+          <text x="8" y="84" font-size="9" fill="var(--text-faint)">CHILDREN - small and precise, these are what get embedded</text>
+          <line x1="180" y1="90" x2="180" y2="108" class="fig-flow" stroke="var(--ion)" stroke-width="2" marker-end="url(#ck-i)"/>
+          <rect x="86" y="112" width="188" height="26" rx="6" fill="var(--panel-raised)" stroke="var(--ion)" stroke-width="1.8"/>
+          <text x="180" y="129" text-anchor="middle" font-size="9">query matches one small child</text>
+          <line x1="180" y1="138" x2="180" y2="156" class="fig-flow" stroke="var(--amber)" stroke-width="2" marker-end="url(#ck-a)"/>
+          <rect x="52" y="160" width="256" height="26" rx="6" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="2"/>
+          <text x="180" y="177" text-anchor="middle" font-size="9">but the whole parent is handed to the model</text>
+          <text x="180" y="202" text-anchor="middle" font-size="8" fill="var(--text-faint)">precision of a small chunk, context of a large one - no compromise needed</text>
+        </svg>`,
+        caption: "Also called parent-document or small-to-big retrieval. It refuses the size tradeoff entirely: embed small chunks so search stays sharp, but return the parent they belong to so the model still gets the surrounding context.",
+      },
+      diagram4: {
+        type: "figure",
+        title: "Contextual retrieval - tell each chunk where it came from",
+        svg: `<svg viewBox="0 0 360 196" role="img" aria-label="An LLM prepends a short situating sentence to each chunk before embedding">
+          <text x="8" y="14" font-size="9" fill="var(--text-faint)">THE RAW CHUNK - meaningless on its own</text>
+          <rect x="8" y="20" width="344" height="30" rx="6" fill="var(--panel-raised)" stroke="var(--line-bright)" stroke-width="1.8"/>
+          <text x="180" y="39" text-anchor="middle" font-size="9">"Revenue grew 3% over the previous quarter."</text>
+          <text x="180" y="64" text-anchor="middle" font-size="8" fill="var(--ion)">which company? which quarter? the chunk cannot say</text>
+          <line x1="180" y1="70" x2="180" y2="86" class="fig-flow" stroke="var(--amber)" stroke-width="2" marker-end="url(#ck-a)"/>
+          <rect x="66" y="90" width="228" height="26" rx="6" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="1.8"/>
+          <text x="180" y="107" text-anchor="middle" font-size="9">an LLM reads the full document once</text>
+          <line x1="180" y1="116" x2="180" y2="132" class="fig-flow" stroke="var(--amber)" stroke-width="2" marker-end="url(#ck-a)"/>
+          <rect x="8" y="136" width="344" height="40" rx="6" fill="var(--ion-dim)" stroke="var(--ion)" stroke-width="2"/>
+          <text x="16" y="152" font-size="8" fill="var(--ion)">"From Acme Corp's Q3 2025 filing, revenue section:"</text>
+          <text x="16" y="168" font-size="9">"Revenue grew 3% over the previous quarter."</text>
+          <text x="180" y="192" text-anchor="middle" font-size="8" fill="var(--text-faint)">the situating line is embedded with the chunk, so the chunk is now findable</text>
+        </svg>`,
+        caption: "A cheap, high-leverage upgrade: before embedding, an LLM writes one short line saying where each chunk sits in its document. Chunks full of pronouns and bare figures - the ones that were previously unretrievable - become searchable.",
+      },
+      diagram5: {
+        type: "figure",
+        title: "Agentic chunking - a model decides the cuts",
+        svg: `<svg viewBox="0 0 360 190" role="img" aria-label="An agent reads the whole document and decides which parts stay together">
+          <rect x="8" y="40" width="66" height="52" rx="6" fill="var(--panel-raised)" stroke="var(--line-bright)" stroke-width="1.8"/>
+          <text x="41" y="62" text-anchor="middle" font-size="8" fill="var(--text-faint)">full</text>
+          <text x="41" y="75" text-anchor="middle" font-size="8" fill="var(--text-faint)">document</text>
+          <line x1="74" y1="66" x2="98" y2="66" stroke="var(--line-bright)" stroke-width="1.8" marker-end="url(#ck-a)"/>
+          <rect x="102" y="34" width="94" height="64" rx="8" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="2"/>
+          <text x="149" y="54" text-anchor="middle" font-size="9">agent reads</text>
+          <text x="149" y="68" text-anchor="middle" font-size="9">it all first</text>
+          <text x="149" y="86" text-anchor="middle" font-size="7" fill="var(--text-faint)">then decides</text>
+          <line x1="196" y1="54" x2="222" y2="30" stroke="var(--ion)" stroke-width="1.8" marker-end="url(#ck-i)"/>
+          <line x1="196" y1="78" x2="222" y2="102" stroke="var(--ion)" stroke-width="1.8" marker-end="url(#ck-i)"/>
+          <rect x="226" y="14" width="126" height="30" rx="6" fill="var(--ion-dim)" stroke="var(--ion)" stroke-width="1.8"/>
+          <text x="289" y="26" text-anchor="middle" font-size="8" fill="var(--ion)">KEEP TOGETHER</text>
+          <text x="289" y="38" text-anchor="middle" font-size="7" fill="var(--text-faint)">rule + its exception</text>
+          <rect x="226" y="88" width="126" height="30" rx="6" fill="var(--ion-dim)" stroke="var(--ion)" stroke-width="1.8"/>
+          <text x="289" y="100" text-anchor="middle" font-size="8" fill="var(--ion)">SPLIT HERE</text>
+          <text x="289" y="112" text-anchor="middle" font-size="7" fill="var(--text-faint)">two ideas, one paragraph</text>
+          <text x="180" y="142" text-anchor="middle" font-size="8" fill="var(--text-faint)">it can also re-chunk later, after seeing which retrievals failed</text>
+          <text x="180" y="164" text-anchor="middle" font-size="9" fill="var(--amber)">the only strategy that understands what it is cutting</text>
+          <text x="180" y="182" text-anchor="middle" font-size="8" fill="var(--ion)">- and by far the most expensive, an LLM call per document</text>
+        </svg>`,
+        caption: "Every other strategy applies a rule blindly. An agent reads the document first and splits on meaning - keeping a rule with its exception, separating two ideas that share a paragraph. It's the only approach that can revise its own chunking after seeing retrieval fail, and the only one that costs an LLM call per document.",
+      },
+      diagram6: {
+        type: "figure",
+        title: "The chunking strategy matrix",
+        svg: `<svg viewBox="0 0 360 226" role="img" aria-label="Retrieval precision against contextual richness as a two by two">
+          <text x="188" y="12" text-anchor="middle" font-size="8" fill="var(--text-faint)">contextual richness →</text>
+          <text x="14" y="120" font-size="8" fill="var(--text-faint)" transform="rotate(-90 14 120)">retrieval precision →</text>
+          <rect x="30" y="20" width="152" height="80" rx="7" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="1.8"/>
+          <text x="106" y="40" text-anchor="middle" font-size="9">Precise but incomplete</text>
+          <text x="106" y="58" text-anchor="middle" font-size="7" fill="var(--text-faint)">single sentences - easy to find,</text>
+          <text x="106" y="70" text-anchor="middle" font-size="7" fill="var(--text-faint)">too thin to answer from</text>
+          <text x="106" y="88" text-anchor="middle" font-size="7" fill="var(--amber)">fixed-size, very small</text>
+          <rect x="190" y="20" width="152" height="80" rx="7" fill="var(--ion-dim)" stroke="var(--ion)" stroke-width="2.4"/>
+          <text x="266" y="40" text-anchor="middle" font-size="9" fill="var(--ion)">The sweet spot</text>
+          <text x="266" y="58" text-anchor="middle" font-size="7" fill="var(--text-faint)">focused enough to find,</text>
+          <text x="266" y="70" text-anchor="middle" font-size="7" fill="var(--text-faint)">rich enough to reason with</text>
+          <text x="266" y="88" text-anchor="middle" font-size="7" fill="var(--ion)">hierarchical · contextual</text>
+          <rect x="30" y="106" width="152" height="80" rx="7" fill="var(--panel-raised)" stroke="var(--line-bright)" stroke-width="1.8"/>
+          <text x="106" y="126" text-anchor="middle" font-size="9">The failure zone</text>
+          <text x="106" y="144" text-anchor="middle" font-size="7" fill="var(--text-faint)">arbitrary cuts mid-sentence -</text>
+          <text x="106" y="156" text-anchor="middle" font-size="7" fill="var(--text-faint)">neither findable nor useful</text>
+          <text x="106" y="174" text-anchor="middle" font-size="7" fill="var(--text-faint)">fixed-size, no overlap</text>
+          <rect x="190" y="106" width="152" height="80" rx="7" fill="var(--amber-dim)" stroke="var(--amber)" stroke-width="1.8"/>
+          <text x="266" y="126" text-anchor="middle" font-size="9">Rich but unfindable</text>
+          <text x="266" y="144" text-anchor="middle" font-size="7" fill="var(--text-faint)">holds the answer, but the</text>
+          <text x="266" y="156" text-anchor="middle" font-size="7" fill="var(--text-faint)">embedding is too diluted to match</text>
+          <text x="266" y="174" text-anchor="middle" font-size="7" fill="var(--amber)">whole-document chunks</text>
+          <text x="188" y="208" text-anchor="middle" font-size="8" fill="var(--text-faint)">the goal isn't the smallest or largest chunk - it's the top-right corner</text>
+          <text x="188" y="222" text-anchor="middle" font-size="8" fill="var(--text-faint)">and hierarchical chunking gets there by refusing to choose an axis</text>
+        </svg>`,
+        caption: "Every chunking decision lands somewhere on this map. Note what the top-right names: not one strategy, but the ones that decouple what you search from what you return.",
+      },
       hook: "<p>How you cut the text before anything else happens quietly determines the ceiling on your entire system's retrieval quality.</p>",
       explain: `<p>Documents are chunked because they're too long to embed as a single vector (one vector can't represent fifty pages without losing all granularity) and too long to stuff into every prompt wholesale. Chunking creates the addressable, retrievable units everything else operates on.</p>
       <p><strong>Fixed-size chunking</strong> splits every N tokens or characters - simple and fast, but structurally blind: it can slice a sentence, a table row, or a code block right down the middle, destroying the meaning that was supposed to be retrieved. <strong>Recursive / structure-aware chunking</strong> splits along natural boundaries first - paragraphs, sections, markdown headers - falling back to a fixed-size cut only when a block is too large on its own, preserving far more semantic integrity. <strong>Semantic chunking</strong> goes further, using embedding similarity between adjacent sentences to detect topic shifts and cutting exactly there, so each chunk stays topically coherent rather than arbitrarily sized.</p>
-      <p><strong>Overlap</strong> - letting adjacent chunks share a small window of tokens, typically 10–20% - is a commonly-missed detail: without it, a fact that straddles a chunk boundary can become effectively unretrievable no matter how the query is phrased, because neither chunk alone contains the complete idea.</p>
+      <p><strong>Document-structure chunking</strong> takes the structure-aware idea further by using what the format already signals - headers, list items, table rows, code blocks - as the boundaries themselves. A markdown section becomes one chunk, its subsections become others, and the heading path ("Billing &gt; Refunds &gt; Enterprise") travels with each chunk as metadata, which is often the single most useful retrieval signal in the whole document.</p>
+      <p><strong>Hierarchical chunking</strong> - also called parent-document or small-to-big retrieval - refuses the size tradeoff instead of navigating it. You store large parent chunks but embed only the small child chunks inside them; search matches a child, and the system returns its parent. You get the retrieval precision of a small chunk with the context of a large one, at the cost of storing the text twice and a little indexing complexity. When people say a RAG system "found the right passage but answered thinly," this is usually the fix.</p>
+      <p><strong>Proposition-based chunking</strong> goes to the opposite extreme: an LLM rewrites the source into standalone atomic facts, each one self-contained and free of pronouns ("Acme Corp's Q3 2025 revenue was $4.7B" rather than "it grew 3% that quarter"). Retrieval becomes very precise, but you've paraphrased your own source - which risks subtly altering meaning and makes exact citation harder.</p>
+      <p><strong>Contextual retrieval</strong> is a cheaper trick aimed at the same problem. Before embedding, an LLM prepends one short line situating each chunk in its document - "From Acme Corp's Q3 2025 filing, revenue section:" - so chunks that were meaningless in isolation become findable without rewriting the underlying text. <strong>Late chunking</strong> attacks it from the model side: run a long-context embedding model over the entire document first, then pool the token embeddings into per-chunk vectors, so every chunk vector was computed while the model could still see the whole document.</p>
+      <p><strong>Agentic chunking</strong> hands the decision to a model entirely. An agent reads the full document before making any splits, identifies conceptual units - a definition, a constraint, a procedure - and decides what must stay together versus what should be separated even when it's adjacent in the text. It's the only approach that can re-chunk after observing which retrievals failed, and the only one that costs an LLM call per document, which is exactly the tradeoff.</p>
+      <p>Some content types need <strong>specialised chunking</strong> outright: source code splits best along the syntax tree, so a function stays whole with its signature; tables need their header row replicated into every chunk or the columns become meaningless; and PDFs need layout-aware parsing to avoid interleaving two printed columns into nonsense.</p>
+      <p><strong>Overlap</strong> - letting adjacent chunks share a small window of tokens, typically 10–20% - is a commonly-missed detail that applies across most of these strategies: without it, a fact that straddles a chunk boundary can become effectively unretrievable no matter how the query is phrased, because neither chunk alone contains the complete idea.</p>
       <p>Chunk size is a genuine tradeoff. Smaller chunks give more precise retrieval (less irrelevant text diluting each chunk's embedding) but lose surrounding context and multiply the number of vectors to search. Larger chunks preserve more context but dilute the embedding's relevance signal and cost more tokens once retrieved. Most production systems land somewhere in the 200–500 token range, tuned empirically per corpus.</p>
       <p>Finally, every chunk should carry <strong>metadata</strong> - source document, section title, page number, date - not just for citation, but to enable <strong>metadata filtering</strong> at retrieval time (e.g. "only search documents from 2024 onward"). This is another detail beginners often skip, treating the vector index as the only source of truth.</p>`,
       analogy:
-        "<p>Fixed-size chunking is tearing a book into pages by ruler-measured thickness, sometimes slicing straight through a sentence. Structure-aware chunking is tearing along the chapter breaks that were already there.</p>",
+        "<p>Fixed-size chunking is tearing a book into pages by ruler-measured thickness, sometimes slicing straight through a sentence. Structure-aware chunking is tearing along the chapter breaks that were already there. Hierarchical chunking is a good index: you look up one precise line, but it sends you to the whole page so you can actually read around it. And agentic chunking is asking an editor who has read the entire book to decide where the natural divisions are - the best result, and the only one you have to pay a person for.</p>",
       example:
         "<p>A 500-character fixed chunk boundary lands mid-row inside a pricing table, separating \"Enterprise plan\" from \"$40,000/year\" into two different chunks. A user asking \"how much does the Enterprise plan cost\" retrieves the chunk with the label but not the number - and the model either admits it doesn't know, or worse, hallucinates a plausible price to fill the gap.</p>",
       takeaways: [
         "Chunking is a make-or-break step - every downstream stage retrieves and reasons over these chunks, never the original document.",
-        "Fixed-size chunking is simple but structurally blind; structure-aware and semantic chunking preserve meaning at some extra complexity.",
+        "Fixed-size chunking is simple but structurally blind; structure-aware, document-structure and semantic chunking preserve meaning at some extra complexity.",
+        "Hierarchical (parent-document) chunking sidesteps the size tradeoff entirely: embed small children for precise search, return the large parent for context.",
+        "Proposition-based, contextual-retrieval and late chunking all attack the same failure - a chunk that means nothing once separated from its document.",
+        "Agentic chunking is the only strategy that understands what it's cutting, and the only one that can re-chunk after seeing retrievals fail - at an LLM call per document.",
+        "Code, tables and PDFs need specialised handling: split code on the syntax tree, repeat table headers into every chunk, parse PDF layout before splitting.",
         "Overlap between adjacent chunks prevents facts straddling a boundary from becoming unretrievable - a commonly-skipped detail.",
-        "Chunk size is a precision/context tradeoff, typically tuned in the 200–500 token range.",
+        "Chunk size is a precision/context tradeoff, typically tuned in the 200–500 token range - the goal is chunks focused enough to find and rich enough to answer from.",
         "Attaching metadata to every chunk enables filtering and citation - core functionality, not optional polish.",
       ],
       quiz: [
@@ -355,6 +468,50 @@ window.PART_DATA = {
           ],
           answer: 3,
           explain: "Metadata filtering combines with vector similarity to enforce recency, permissions, and document type - pure similarity can't do this alone.",
+        },
+        {
+          q: "How does hierarchical (parent-document) chunking avoid the usual chunk-size tradeoff?",
+          options: [
+            "It embeds small child chunks for precise search but returns the larger parent chunk for context",
+            "It makes every chunk exactly the same size",
+            "It removes the need to embed anything at all",
+            "It only ever stores one chunk per document",
+          ],
+          answer: 0,
+          explain: "Decoupling what you search from what you return gives the precision of a small chunk and the context of a large one, at the cost of storing the text twice.",
+        },
+        {
+          q: "What problem do contextual retrieval and proposition-based chunking both try to solve?",
+          options: [
+            "Vector databases being too slow to query",
+            "Embedding models having too few dimensions",
+            "A chunk that becomes meaningless once separated from its document - bare pronouns and figures with no subject",
+            "Documents being stored in the wrong file format",
+          ],
+          answer: 2,
+          explain: "\"Revenue grew 3%\" is unretrievable on its own; contextual retrieval prepends a situating line, while proposition-based chunking rewrites the text into self-contained facts.",
+        },
+        {
+          q: "What makes agentic chunking uniquely capable, and what does it cost?",
+          options: [
+            "It needs no model at all, and is therefore free",
+            "It reads the whole document before splitting and can re-chunk after seeing retrieval failures - at the cost of an LLM call per document",
+            "It guarantees every chunk is exactly 512 tokens, at no cost",
+            "It replaces the need for embeddings, but requires a GPU",
+          ],
+          answer: 1,
+          explain: "Every other strategy applies a rule blindly; an agent splits on meaning and can revise its own chunking, which is why it's both the most capable and the most expensive.",
+        },
+        {
+          q: "Why does source code usually need its own chunking strategy?",
+          options: [
+            "Code cannot be embedded by any model",
+            "Code files are always too small to chunk",
+            "Splitting along the syntax tree keeps a function whole with its signature, which a character-count split would sever",
+            "Code should never be retrieved by a RAG system",
+          ],
+          answer: 2,
+          explain: "Structure-blind splitting can separate a function's body from its signature; the same logic is why table headers must be repeated into every table chunk.",
         },
       ],
     },
