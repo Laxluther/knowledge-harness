@@ -1703,3 +1703,14 @@
     padding: var(--sp-4);
   }
 }
+
+/* ---- night mode: the pixel sprites keep a warm shadow on parchment, but
+   need a plain dark one on a dark ground or they glow oddly ---- */
+:root[data-theme="dark"] .crew-mascot .rc-sprite,
+:root[data-theme="dark"] .crew-mascot .wiz-sprite,
+:root[data-theme="dark"] .snake-actor .rc-sprite,
+:root[data-theme="dark"] .snake-wizard .wiz-sprite,
+:root[data-theme="dark"] .pix-actor__art .rc-sprite,
+:root[data-theme="dark"] .crew-packet {
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.6));
+}

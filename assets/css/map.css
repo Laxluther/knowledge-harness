@@ -336,6 +336,10 @@
   box-shadow: var(--shadow-panel);
 }
 
+:root[data-theme="dark"] .map-legend {
+  background: rgba(42, 35, 24, 0.92);
+}
+
 .map-legend__row {
   display: flex;
   align-items: center;
@@ -600,3 +604,9 @@
 .map-node.is-unlocked .map-node__chip { box-shadow: 0 0 0 3px rgba(165,31,43,.12), var(--shadow-node), inset 0 2px 4px rgba(255,250,235,.55), inset 0 -3px 6px rgba(120,90,40,.16); }
 .map-node.is-completed .map-node__chip { box-shadow: 0 0 0 3px rgba(191,147,48,.16), var(--shadow-node-amber), inset 0 2px 4px rgba(255,250,235,.55), inset 0 -3px 6px rgba(120,90,40,.16); }
 .map-node__glyph { display: flex; align-items: center; justify-content: center; }
+
+/* night mode: the wax highlight comes from above but much dimmer, and the
+   emboss shadow deepens, so the seals still read as raised on a dark ground */
+:root[data-theme="dark"] .map-node__chip { box-shadow: var(--shadow-node), inset 0 2px 4px rgba(255,240,210,.10), inset 0 -3px 6px rgba(0,0,0,.45); }
+:root[data-theme="dark"] .map-node.is-unlocked .map-node__chip { box-shadow: 0 0 0 3px rgba(232,98,107,.20), var(--shadow-node), inset 0 2px 4px rgba(255,240,210,.10), inset 0 -3px 6px rgba(0,0,0,.4); }
+:root[data-theme="dark"] .map-node.is-completed .map-node__chip { box-shadow: 0 0 0 3px rgba(215,169,72,.22), var(--shadow-node-amber), inset 0 2px 4px rgba(255,240,210,.10), inset 0 -3px 6px rgba(0,0,0,.4); }

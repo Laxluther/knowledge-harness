@@ -490,3 +490,9 @@
   .pix-mascot--companion{right:var(--sp-3);bottom:var(--sp-3);}
   .pix-mascot--companion .wiz-sprite{width:54px;}
 }
+
+/* night mode: dark shadow under the mascots instead of the warm parchment one */
+:root[data-theme="dark"] .wiz-sprite,
+:root[data-theme="dark"] .pix-mascot .rc-sprite {
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.65));
+}

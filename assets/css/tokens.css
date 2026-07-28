@@ -75,3 +75,50 @@
   --dur-med: 320ms;
   --dur-slow: 600ms;
 }
+
+/* ============================================================
+   Night mode — the same grimoire read by candlelight.
+   Only the colour values change; every name stays identical, so
+   the whole cascade (including the token-driven figure SVGs)
+   re-skins from this one block. The theme attribute is written
+   to <html> before first paint by the inline script in each page
+   head, so there is no flash of the wrong theme.
+   ============================================================ */
+:root[data-theme="dark"] {
+  /* surfaces: warm near-black rather than neutral grey, so the
+     parchment character survives the inversion */
+  --void: #16120c;
+  --void-raised: #1b160e;
+  --panel: #201a12;
+  --panel-raised: #2a2318;
+  --line: #3a3225;
+  --line-bright: #574a32;
+
+  /* crimson has to lift off a dark ground, so it brightens */
+  --ion: #e8626b;
+  --ion-soft: #f2848a;
+  --ion-dim: #3a1f20;
+  --ion-glow: rgba(232, 98, 107, 0.30);
+
+  --amber: #d7a948;
+  --amber-soft: #ecc463;
+  --amber-dim: #332a15;
+  --amber-glow: rgba(215, 169, 72, 0.35);
+
+  --locked: #6d6349;
+  --locked-line: #453d2c;
+
+  --danger: #e8626b;
+
+  /* ink inverts to warm parchment */
+  --text: #ece1c8;
+  --text-muted: #b0a382;
+  --text-faint: #837755;
+  /* both accents are now light, so text sitting on them goes dark */
+  --text-on-amber: #1a140e;
+  --text-on-ion: #1a140e;
+
+  --shadow-panel: 0 10px 30px rgba(0, 0, 0, 0.55);
+  --shadow-node: 0 3px 10px rgba(0, 0, 0, 0.6);
+  --shadow-node-amber: 0 3px 10px rgba(0, 0, 0, 0.6);
+}

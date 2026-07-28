@@ -1221,6 +1221,7 @@ const App = (() => {
           <div class="xp-bar__label">Lv.${lvl.level}</div>
         </div>
         ${toggleHtml}
+        ${typeof Theme !== "undefined" ? Theme.markup() : ""}
       </div>`;
   }
 
