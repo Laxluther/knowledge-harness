@@ -1,0 +1,135 @@
+/* ============================================================
+   Dispatches — the daily reading list.
+   Deliberately plainer than the book: this is a feed, not a
+   chapter, and it should not pretend to be hand-written.
+   ============================================================ */
+
+.dispatch-hero {
+  padding: var(--sp-8) 0 var(--sp-5);
+  border-bottom: 2px solid var(--line-bright);
+}
+
+.dispatch-hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin-top: var(--sp-2);
+}
+
+.dispatch-hero__sub {
+  margin-top: var(--sp-3);
+  max-width: 62ch;
+  color: var(--text-muted);
+  font-size: 1.02rem;
+}
+
+.dispatch-hero__stamp {
+  margin-top: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-faint);
+}
+
+.dispatch-body {
+  padding: var(--sp-6) 0 var(--sp-7);
+}
+
+.dispatch-day + .dispatch-day {
+  margin-top: var(--sp-7);
+}
+
+.dispatch-day__label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ion);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-4);
+}
+
+.dispatch-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.dispatch {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-bright);
+  border-radius: var(--radius-md);
+  transition: border-left-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.dispatch:hover {
+  border-left-color: var(--ion);
+  transform: translateX(2px);
+}
+
+.dispatch__link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.dispatch__title {
+  font-family: var(--font-body);
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.dispatch__link:hover .dispatch__title {
+  color: var(--ion);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.dispatch__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.dispatch__source {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+.dispatch__tag {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--amber);
+  border: 1px solid var(--amber-dim);
+  background: var(--amber-dim);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+}
+
+.dispatch__excerpt {
+  margin-top: var(--sp-3);
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.dispatch-empty {
+  color: var(--text-faint);
+  font-style: italic;
+  padding: var(--sp-7) 0;
+  text-align: center;
+}
+
+.dispatch-foot {
+  padding-bottom: var(--sp-8);
+}
+
+@media (max-width: 640px) {
+  .dispatch-hero { padding-top: var(--sp-6); }
+  .dispatch { padding: var(--sp-3) var(--sp-4); }
+  .dispatch__title { font-size: 1.02rem; }
+}

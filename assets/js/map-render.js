@@ -172,7 +172,9 @@ const MapRenderer = (() => {
     }
 
     viewport.addEventListener("pointerdown", (e) => {
-      if (e.target.closest(".map-node") || e.target.closest(".map-controls")) return;
+      // Anything interactive inside the viewport has to keep its own clicks:
+      // pointer capture below would otherwise redirect them to the pan handler.
+      if (e.target.closest(".map-node, .map-controls, a[href], button")) return;
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       viewport.setPointerCapture(e.pointerId);
       dragging = true;

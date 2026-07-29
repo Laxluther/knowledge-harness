@@ -1,0 +1,37 @@
+{
+  "_comment": "Every URL here was probed and confirmed to return a valid feed with recent items. Anthropic's marketing site publishes no RSS at any path, so their cookbook/code repos stand in - those are the actual playbooks anyway. Tier drives how harshly the ranker filters: tier 1 is first-party and trusted, tier 3 is high-volume and needs the most scepticism.",
+  "feeds": [
+    { "name": "OpenAI",              "tier": 1, "url": "https://openai.com/news/rss.xml" },
+    { "name": "OpenAI Cookbook",     "tier": 1, "url": "https://github.com/openai/openai-cookbook/commits/main.atom", "kind": "repo" },
+    { "name": "Anthropic Cookbook",  "tier": 1, "url": "https://github.com/anthropics/anthropic-cookbook/commits/main.atom", "kind": "repo" },
+    { "name": "Claude Cookbooks",    "tier": 1, "url": "https://github.com/anthropics/claude-cookbooks/commits/main.atom", "kind": "repo" },
+    { "name": "Claude Code",         "tier": 1, "url": "https://github.com/anthropics/claude-code/commits/main.atom", "kind": "repo" },
+    { "name": "Anthropic Quickstarts","tier": 1, "url": "https://github.com/anthropics/anthropic-quickstarts/commits/main.atom", "kind": "repo" },
+    { "name": "MCP Servers",         "tier": 1, "url": "https://github.com/modelcontextprotocol/servers/commits/main.atom", "kind": "repo" },
+
+    { "name": "Simon Willison",      "tier": 2, "url": "https://simonwillison.net/atom/everything/" },
+    { "name": "Latent Space",        "tier": 2, "url": "https://www.latent.space/feed" },
+    { "name": "Sebastian Raschka",   "tier": 2, "url": "https://magazine.sebastianraschka.com/feed" },
+    { "name": "Cameron Wolfe",       "tier": 2, "url": "https://cameronrwolfe.substack.com/feed" },
+    { "name": "The Sequence",        "tier": 2, "url": "https://thesequence.substack.com/feed" },
+    { "name": "Lilian Weng",         "tier": 2, "url": "https://lilianweng.github.io/index.xml" },
+    { "name": "Hamel Husain",        "tier": 2, "url": "https://hamel.dev/index.xml" },
+    { "name": "Eugene Yan",          "tier": 2, "url": "https://eugeneyan.com/rss/" },
+
+    { "name": "Hugging Face",        "tier": 3, "url": "https://huggingface.co/blog/feed.xml" },
+    { "name": "Google AI",           "tier": 3, "url": "https://blog.google/technology/ai/rss/" },
+    { "name": "DeepMind",            "tier": 3, "url": "https://deepmind.google/blog/rss.xml" },
+    { "name": "Weaviate",            "tier": 3, "url": "https://weaviate.io/blog/rss.xml" },
+    { "name": "Medium · LLM",        "tier": 3, "url": "https://medium.com/feed/tag/llm" },
+    { "name": "Medium · RAG",        "tier": 3, "url": "https://medium.com/feed/tag/rag" },
+    { "name": "Medium · AI Agents",  "tier": 3, "url": "https://medium.com/feed/tag/ai-agents" }
+  ],
+  "titleBlocklist": [
+    "top \\d+", "\\d+ (best|ways|tips|tricks|prompts|tools)", "you (need|should) know",
+    "will change (your|everything)", "in \\d+ minutes", "for beginners in \\d{4}",
+    "i built", "i tried", "here's why", "the future of ai is",
+    "chatgpt vs", "is dead", "no one talks about", "hidden gem", "game.?changer"
+  ],
+  "maxPerRun": 5,
+  "maxAgeDays": 3
+}

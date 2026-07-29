@@ -46,6 +46,10 @@
     z-index: 5;
   }
   .home-footer strong { color: var(--text-muted); font-weight: 500; }
+  /* the bar itself ignores pointer events so it never blocks the map;
+     the one link inside it has to opt back in */
+  .home-footer a { pointer-events: auto; color: var(--ion); text-decoration: none; }
+  .home-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -140,7 +144,7 @@
 
   const credit = document.createElement("div");
   credit.className = "home-footer";
-  credit.innerHTML = `Built by <strong>Sanidhya Rana</strong>`;
+  credit.innerHTML = `<a href="articles.html">Dispatches</a> &middot; Built by <strong>Sanidhya Rana</strong>`;
   document.getElementById("viewport").appendChild(credit);
 </script>
 </body>
