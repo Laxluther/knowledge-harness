@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#e9dcbe" />
+<script>(function(){try{var t=localStorage.getItem("kh-theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();</script>
+<title>Roadmap — Booklet</title>
+<meta name="description" content="The whole library as one shape: seven modules, forty-one notes, in the order they build on each other." />
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/base.css" />
+<link rel="stylesheet" href="assets/css/shell.css" />
+<style>
+  .rm-layout {
+    display: grid;
+    grid-template-columns: 1fr 302px;
+    gap: var(--sp-6);
+    align-items: start;
+  }
+
+  .rm-stage {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--sp-3);
+    overflow: hidden;
+  }
+
+  .rm { width: 100%; height: auto; display: block; overflow: visible; }
+
+  /* ---- edges ---- */
+  .rm-spine {
+    fill: none;
+    stroke: var(--line-bright);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .rm-tether {
+    stroke: var(--line);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+  }
+
+  /* ---- hubs ---- */
+  .rm-hub rect,
+  .rm-hub circle,
+  .rm-hub polygon {
+    fill: var(--panel-raised);
+    stroke: currentColor;
+    stroke-width: 2.5;
+    transition: fill var(--dur-fast), transform var(--dur-fast);
+  }
+
+  .rm-hub:hover rect,
+  .rm-hub:hover circle,
+  .rm-hub:hover polygon { fill: currentColor; }
+
+  .rm-hub__label {
+    text-anchor: middle;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    fill: var(--text);
+  }
+
+  .rm-hub__n {
+    text-anchor: middle;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--text-muted);
+    pointer-events: none;
+  }
+  .rm-hub:hover .rm-hub__n { fill: var(--panel-raised); }
+
+  /* ---- track tabs ---- */
+  .rm-tabs {
+    display: flex;
+    gap: var(--sp-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--sp-5);
+  }
+
+  .rm-hub__count {
+    text-anchor: middle;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    fill: var(--text-faint);
+  }
+
+  /* ---- satellites ---- */
+  .rm-sat circle { transition: r var(--dur-fast); stroke-width: 1.5; }
+  .rm-sat__hit { fill: transparent; stroke: none; }
+  .rm-sat:hover circle:first-child { r: 8.5; }
+  /* an outlined note is a hollow ring — nothing behind it to open */
+  .rm-sat.is-planned { cursor: default; }
+
+  .rm-tip {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    background: var(--plate);
+    color: var(--plate-text);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    padding: 5px 9px;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 5;
+  }
+
+  /* ---- index sidebar ---- */
+  .rm-index {
+    position: sticky;
+    top: 78px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--panel);
+    overflow: hidden;
+  }
+
+  .rm-index__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-3) var(--sp-4);
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .rm-phase {
+    padding: var(--sp-3) var(--sp-4) var(--sp-2);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .rm-entry {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) var(--sp-4);
+    transition: background var(--dur-fast);
+  }
+
+  .rm-entry:hover { background: var(--panel-raised); }
+
+  .rm-entry__glyph { width: 20px; height: 20px; flex-shrink: 0; }
+  .rm-entry__glyph rect,
+  .rm-entry__glyph circle,
+  .rm-entry__glyph polygon { fill: currentColor; }
+
+  .rm-entry__name { font-weight: 600; font-size: 0.94rem; line-height: 1.2; }
+  .rm-entry__n {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    color: var(--text-faint);
+  }
+
+  @media (max-width: 900px) {
+    .rm-layout { grid-template-columns: 1fr; }
+    .rm-index { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="wrap">
+    <div class="page-head">
+      <span class="page-head__eyebrow">Everything, in order</span>
+      <h1 class="page-head__title">Roadmap</h1>
+      <p class="page-head__sub">
+        Each track laid out the way it actually builds on itself. Modules keep their own silhouettes;
+        the dots around one are its notes — hollow means outlined but not written. Point at a dot to
+        name it, click to read it.
+      </p>
+    </div>
+
+    <div class="rm-tabs" id="tabs" role="tablist"></div>
+
+    <div class="rm-layout">
+      <div class="rm-stage" id="stage"></div>
+
+      <aside class="rm-index">
+        <div class="rm-index__head">
+          <span id="index-title">Index</span>
+          <span id="index-count"></span>
+        </div>
+        <div id="index-body"></div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="foot"></div>
+</main>
+
+<script src="assets/js/theme.js"></script>
+<script src="content/part-1.js"></script>
+<script src="content/part-2.js"></script>
+<script src="content/part-3.js"></script>
+<script src="content/part-4.js"></script>
+<script src="content/part-5.js"></script>
+<script src="content/part-6.js"></script>
+<script src="content/part-7.js"></script>
+<script src="content/syllabus.js"></script>
+<script src="content/notes.js"></script>
+<script src="content/library.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/roadmap-render.js"></script>
+<script>
+  const L = window.Library;
+  Shell.mount({ active: "roadmap" });
+
+  const tracks = L.tracks.filter((t) => t.modules.length);
+  const params = new URLSearchParams(location.search);
+  let current = tracks.find((t) => t.id === params.get("track")) || tracks[0];
+
+  /* Three phases per track, cut by proportion rather than by fixed
+     module numbers — a 14-module track and a 6-module one both
+     divide into an opening, a middle, and the part that only makes
+     sense once the rest is in place. */
+  function phasesFor(track) {
+    const n = track.modules.length;
+    if (n < 3) return [{ label: "All of it", modules: track.modules }];
+    const a = Math.max(1, Math.round(n * 0.3));
+    const b = Math.max(a + 1, Math.round(n * 0.72));
+    return [
+      { label: "Foundations", modules: track.modules.slice(0, a) },
+      { label: "Building", modules: track.modules.slice(a, b) },
+      { label: "In production", modules: track.modules.slice(b) },
+    ].filter((p) => p.modules.length);
+  }
+
+  function renderTabs() {
+    document.getElementById("tabs").innerHTML = tracks
+      .map(
+        (t) =>
+          `<button class="chip" type="button" role="tab" data-track="${t.id}" aria-pressed="${t.id === current.id}">
+             <span class="swatch" style="--accent:${Shell.hue(t.hue)};display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:6px;vertical-align:middle;background:${Shell.hue(t.hue)}"></span>${Shell.esc(t.title)}<span class="chip__n">${t.modules.length}</span>
+           </button>`
+      )
+      .join("");
+  }
+
+  function render() {
+    const accent = Shell.hue(current.hue);
+
+    RoadmapRender.init({
+      container: document.getElementById("stage"),
+      modules: current.modules.map((m) => Object.assign({}, m, { accent })),
+      notesFor: (id) => L.notesIn(id),
+    });
+
+    document.getElementById("index-title").textContent = current.title;
+    document.getElementById("index-count").textContent = `${current.modules.length} · ${current.count}`;
+
+    document.getElementById("index-body").innerHTML = phasesFor(current)
+      .map((phase) => {
+        const rows = phase.modules
+          .map((m) => {
+            const shape = RoadmapRender.SHAPES[(m.n - 1) % RoadmapRender.SHAPES.length];
+            return `<a class="rm-entry" href="browse.html?module=${encodeURIComponent(m.id)}" style="color:${accent}">
+                <svg class="rm-entry__glyph" viewBox="-12 -12 24 24" aria-hidden="true">${RoadmapRender.shapePath(shape, 9)}</svg>
+                <span class="rm-entry__name" style="color:var(--text)">${Shell.esc(m.title)}</span>
+                <span class="rm-entry__n">${m.count}</span>
+              </a>`;
+          })
+          .join("");
+        return `<div class="rm-phase">${phase.label}</div>${rows}`;
+      })
+      .join("");
+
+    renderTabs();
+    history.replaceState(null, "", `?track=${encodeURIComponent(current.id)}`);
+    document.title = `${current.title} roadmap — Booklet`;
+  }
+
+  document.getElementById("tabs").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-track]");
+    if (!btn) return;
+    const next = tracks.find((t) => t.id === btn.dataset.track);
+    if (next && next !== current) { current = next; render(); }
+  });
+
+  render();
+  document.getElementById("foot").innerHTML = Shell.foot();
+</script>
+</body>
+</html>

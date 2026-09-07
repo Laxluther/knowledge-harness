@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#e9dcbe" />
+<script>(function(){try{var t=localStorage.getItem("kh-theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();</script>
+<title>Labs — Booklet</title>
+<meta name="description" content="Small instruments you can push on until a number stops being abstract." />
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/base.css" />
+<link rel="stylesheet" href="assets/css/shell.css" />
+<style>
+  .lab {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .lab__top { height: 3px; background: var(--m-ember); }
+
+  .lab__body { padding: var(--sp-5); }
+
+  .lab__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .lab__title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin-top: var(--sp-2);
+  }
+
+  .lab__ask {
+    margin-top: var(--sp-3);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .lab__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-5);
+    margin-top: var(--sp-5);
+    align-items: start;
+  }
+
+  .dial { margin-bottom: var(--sp-4); }
+
+  .dial__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .dial__val { color: var(--text); font-weight: 500; }
+
+  .dial input[type="range"] {
+    width: 100%;
+    margin-top: 6px;
+    accent-color: var(--ion);
+  }
+
+  .dial select {
+    width: 100%;
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 6px 8px;
+    color: var(--text);
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+
+  .readout {
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: var(--sp-4);
+  }
+
+  .readout__big {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    line-height: 1;
+    color: var(--ion);
+  }
+
+  .readout__unit {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .readout__line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: 5px 0;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .readout__line:first-of-type { margin-top: var(--sp-4); }
+  .readout__line strong { color: var(--text); font-weight: 500; }
+
+  .verdict {
+    margin-top: var(--sp-4);
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+    border-left: 3px solid var(--amber);
+    background: var(--amber-dim);
+  }
+  .verdict.is-bad { border-left-color: var(--ion); background: var(--ion-dim); }
+
+  .lab__formula {
+    margin-top: var(--sp-5);
+    padding-top: var(--sp-4);
+    border-top: 1px dashed var(--line-bright);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 720px) {
+    .lab__grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="wrap">
+    <div class="page-head">
+      <span class="page-head__eyebrow">Runs on this device</span>
+      <h1 class="page-head__title">Labs</h1>
+      <p class="page-head__sub">
+        Instruments, not demos. Each one takes a number that stays abstract on the page and lets you
+        push it until it isn't. Nothing is sent anywhere — the arithmetic happens in this tab.
+      </p>
+    </div>
+
+    <div class="lab">
+      <div class="lab__top"></div>
+      <div class="lab__body">
+        <span class="lab__eyebrow">Inference memory · runs on device</span>
+        <h2 class="lab__title">KV cache</h2>
+        <p class="lab__ask">How much accelerator memory does the cache eat before the weights get a look in?</p>
+
+        <div class="lab__grid">
+          <div>
+            <div class="dial">
+              <div class="dial__row"><span>Model</span><span class="dial__val" id="v-model">8B</span></div>
+              <select id="d-model">
+                <option value="8,32,8,4096" selected>8B · 32 layers · 8 KV heads</option>
+                <option value="70,80,8,8192">70B · 80 layers · 8 KV heads</option>
+                <option value="1,16,4,2048">1B · 16 layers · 4 KV heads</option>
+                <option value="405,126,8,16384">405B · 126 layers · 8 KV heads</option>
+              </select>
+            </div>
+
+            <div class="dial">
+              <div class="dial__row"><span>Sequence length</span><span class="dial__val" id="v-seq">8,192</span></div>
+              <input type="range" id="d-seq" min="512" max="131072" step="512" value="8192" />
+            </div>
+
+            <div class="dial">
+              <div class="dial__row"><span>Concurrent requests</span><span class="dial__val" id="v-batch">16</span></div>
+              <input type="range" id="d-batch" min="1" max="256" step="1" value="16" />
+            </div>
+
+            <div class="dial">
+              <div class="dial__row"><span>Cache precision</span><span class="dial__val" id="v-prec">FP16</span></div>
+              <select id="d-prec">
+                <option value="2" selected>FP16 — 2 bytes</option>
+                <option value="1">FP8 — 1 byte</option>
+                <option value="0.5">INT4 — 0.5 bytes</option>
+              </select>
+            </div>
+
+            <div class="dial">
+              <div class="dial__row"><span>Accelerator</span><span class="dial__val" id="v-gpu">80 GB</span></div>
+              <select id="d-gpu">
+                <option value="24">24 GB — RTX 4090</option>
+                <option value="80" selected>80 GB — A100 / H100</option>
+                <option value="141">141 GB — H200</option>
+                <option value="192">192 GB — MI300X</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="readout">
+            <div class="readout__big" id="out-total">—</div>
+            <div class="readout__unit">KV cache, total</div>
+
+            <div class="readout__line"><span>Per request</span><strong id="out-each">—</strong></div>
+            <div class="readout__line"><span>Per token</span><strong id="out-token">—</strong></div>
+            <div class="readout__line"><span>Weights (est.)</span><strong id="out-weights">—</strong></div>
+            <div class="readout__line"><span>Cache + weights</span><strong id="out-sum">—</strong></div>
+            <div class="readout__line"><span>Of your accelerator</span><strong id="out-pct">—</strong></div>
+
+            <div class="verdict" id="verdict"></div>
+          </div>
+        </div>
+
+        <div class="lab__formula">
+          bytes = 2 × layers × kv_heads × head_dim × seq_len × batch × precision<br />
+          The leading 2 is the K and the V. Note that <em>kv_heads</em>, not attention heads, is what
+          grouped-query attention shrinks — that is the whole point of GQA.
+        </div>
+      </div>
+    </div>
+
+    <p class="count-line" style="margin-top:var(--sp-5)">
+      <strong>1</strong> lab available · more as the inference notes get written
+    </p>
+  </div>
+
+  <div id="foot"></div>
+</main>
+
+<script src="assets/js/theme.js"></script>
+<script src="content/part-1.js"></script>
+<script src="content/part-2.js"></script>
+<script src="content/part-3.js"></script>
+<script src="content/part-4.js"></script>
+<script src="content/part-5.js"></script>
+<script src="content/part-6.js"></script>
+<script src="content/part-7.js"></script>
+<script src="content/syllabus.js"></script>
+<script src="content/notes.js"></script>
+<script src="content/library.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  Shell.mount({ active: "labs" });
+
+  const $ = (id) => document.getElementById(id);
+  const GB = 1024 ** 3;
+
+  function fmtBytes(b) {
+    if (b >= GB) return `${(b / GB).toFixed(b / GB < 10 ? 2 : 1)} GB`;
+    if (b >= 1024 ** 2) return `${(b / 1024 ** 2).toFixed(1)} MB`;
+    if (b >= 1024) return `${(b / 1024).toFixed(1)} KB`;
+    return `${Math.round(b)} B`;
+  }
+
+  function compute() {
+    const [paramsB, layers, kvHeads, hidden] = $("d-model").value.split(",").map(Number);
+    const seq = Number($("d-seq").value);
+    const batch = Number($("d-batch").value);
+    const prec = Number($("d-prec").value);
+    const gpu = Number($("d-gpu").value) * GB;
+
+    // head_dim is the hidden size split across the *attention* heads;
+    // these configs all use 128, which is the near-universal choice
+    const headDim = 128;
+
+    const perToken = 2 * layers * kvHeads * headDim * prec;
+    const perRequest = perToken * seq;
+    const total = perRequest * batch;
+
+    // weights at FP16 — the cache is competing with these for the card
+    const weights = paramsB * 1e9 * 2;
+    const sum = total + weights;
+    const pct = (sum / gpu) * 100;
+
+    $("v-seq").textContent = seq.toLocaleString();
+    $("v-batch").textContent = batch;
+    $("v-prec").textContent = $("d-prec").selectedOptions[0].text.split(" —")[0];
+    $("v-gpu").textContent = $("d-gpu").selectedOptions[0].text.split(" —")[0];
+    $("v-model").textContent = `${paramsB}B`;
+
+    $("out-total").textContent = fmtBytes(total);
+    $("out-each").textContent = fmtBytes(perRequest);
+    $("out-token").textContent = fmtBytes(perToken);
+    $("out-weights").textContent = fmtBytes(weights);
+    $("out-sum").textContent = fmtBytes(sum);
+    $("out-pct").textContent = `${pct.toFixed(0)}%`;
+
+    /* The verdict is the actual output of the lab. A byte count means
+       nothing on its own; whether it fits is the decision. */
+    const v = $("verdict");
+    v.classList.toggle("is-bad", pct > 100);
+    if (pct > 100) {
+      const fits = Math.max(0, Math.floor((gpu - weights) / perRequest));
+      v.innerHTML = fits > 0
+        ? `Does not fit. At this sequence length the card holds <strong>${fits}</strong> concurrent request${fits === 1 ? "" : "s"}, not ${batch}.`
+        : `Does not fit — the weights alone leave no room for a cache. This needs a bigger card or more of them.`;
+    } else if (pct > 85) {
+      v.innerHTML = `Fits, barely — <strong>${(100 - pct).toFixed(0)}%</strong> headroom. One long request away from an out-of-memory error.`;
+    } else {
+      const share = (total / sum) * 100;
+      v.innerHTML = `Fits. The cache is <strong>${share.toFixed(0)}%</strong> of what you are holding${share > 50 ? " — more than the weights themselves" : ""}.`;
+    }
+  }
+
+  ["d-model", "d-seq", "d-batch", "d-prec", "d-gpu"].forEach((id) =>
+    $(id).addEventListener("input", compute)
+  );
+
+  compute();
+  $("foot").innerHTML = Shell.foot();
+</script>
+</body>
+</html>

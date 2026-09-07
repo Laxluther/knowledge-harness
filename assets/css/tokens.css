@@ -41,10 +41,35 @@
   --text-on-amber: #2c2216;
   --text-on-ion: #f6ecd6;
 
-  /* ---- type ---- */
-  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  /* ---- type ----
+     The display face is a bitmap pixel face, not a serif. It is the
+     one idiom that belongs to both halves of this design: retro-arcane
+     enough to sit beside the wizard, technical enough to head a page
+     of notes about inference. Used only for page titles and numerals —
+     it is unreadable as body copy and must never be asked to be.
+     (Cinzel was removed: it fought this face for the display role.) */
+  --font-display: "Pixelify Sans", "Courier New", monospace;
   --font-body: "EB Garamond", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", "Consolas", monospace;
+
+  /* ---- module hues ----
+     Seven modules, seven identities. Each has to hold its own against
+     parchment without turning into a highlighter, so these are all
+     muted mid-tones rather than saturated primaries. */
+  --m-ember: #b4552a;
+  --m-ice: #3d6f8e;
+  --m-terra: #8a6a3a;
+  --m-verdant: #4f7a45;
+  --m-violet: #6b4f8a;
+  --m-moon: #56617a;
+  --m-lava: #a3392f;
+
+  /* ---- structural ----
+     A solid ink plate, used where fanout uses a black pill. On
+     parchment, near-black reads as ink rather than as UI chrome. */
+  --plate: #2c2216;
+  --plate-text: #f4ecd8;
+  --edge: rgba(120, 92, 46, 0.30); /* the drawn edge of a stacked page */
 
   /* ---- spacing scale ---- */
   --sp-1: 4px;
@@ -121,4 +146,17 @@
   --shadow-panel: 0 10px 30px rgba(0, 0, 0, 0.55);
   --shadow-node: 0 3px 10px rgba(0, 0, 0, 0.6);
   --shadow-node-amber: 0 3px 10px rgba(0, 0, 0, 0.6);
+
+  /* module hues lift off the dark ground the same way crimson does */
+  --m-ember: #e08a55;
+  --m-ice: #6fa8c9;
+  --m-terra: #c2a068;
+  --m-verdant: #83b477;
+  --m-violet: #a389c4;
+  --m-moon: #93a0bd;
+  --m-lava: #e0705f;
+
+  --plate: #ece1c8;
+  --plate-text: #1a140e;
+  --edge: rgba(236, 225, 200, 0.22);
 }

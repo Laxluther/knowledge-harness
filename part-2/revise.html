@@ -5,141 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#e9dcbe" />
 <script>(function(){try{var t=localStorage.getItem("kh-theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();</script>
-<title>Revise — Part II: Prompting & Context Engineering · Knowledge Harness</title>
-<link rel="manifest" href="../manifest.json" />
+<title>Prompting & Context Engineering — read straight through · Booklet</title>
+<meta name="description" content="Every note in Prompting & Context Engineering on one page." />
 <link rel="icon" href="../assets/icon.svg" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../assets/css/tokens.css" />
 <link rel="stylesheet" href="../assets/css/base.css" />
+<link rel="stylesheet" href="../assets/css/shell.css" />
 <link rel="stylesheet" href="../assets/css/components.css" />
 <link rel="stylesheet" href="../assets/css/quest.css" />
 <link rel="stylesheet" href="../assets/css/simple.css" />
-<link rel="stylesheet" href="../assets/css/astronaut.css" />
+<link rel="stylesheet" href="../assets/css/note.css" />
 </head>
 <body>
-<div class="grid-backdrop"></div>
-<div id="statusbar-root"></div>
-
-<div class="revise-layout">
-  <nav class="revise-toc" id="toc">
-    <div class="revise-toc__title">Part II · On this page</div>
-  </nav>
-  <main class="revise-main">
-    <header>
-      <button class="revise-mobile-toc-toggle" id="toc-toggle">☰ Chapter list</button>
-      <h1 id="revise-title"></h1>
-      <p id="revise-tagline"></p>
-    </header>
-    <div id="chapters"></div>
-  </main>
-</div>
-
-<script src="../assets/js/progress.js"></script>
-<script src="../assets/js/toast.js"></script>
-<script src="../assets/js/confetti.js"></script>
-<script src="../assets/js/particles.js"></script>
+<main id="root"></main>
+<div id="foot"></div>
 <script src="../assets/js/theme.js"></script>
 <script src="../assets/js/app.js"></script>
-<script src="../assets/js/pixel.js"></script>
-<script src="../assets/js/astronaut.js"></script>
+<script src="../content/part-1.js"></script>
 <script src="../content/part-2.js"></script>
+<script src="../content/part-3.js"></script>
+<script src="../content/part-4.js"></script>
+<script src="../content/part-5.js"></script>
+<script src="../content/part-6.js"></script>
+<script src="../content/part-7.js"></script>
+<script src="../content/syllabus.js"></script>
+<script src="../content/notes.js"></script>
+<script src="../content/library.js"></script>
+<script src="../assets/js/shell.js"></script>
 <script>
-  Particles.mount(12);
-  const part = window.PART_DATA;
-  document.getElementById("statusbar-root").outerHTML = App.buildStatusBar({
-    homeHref: "../index.html",
-    toggle: { mapHref: "map.html", reviseHref: "revise.html", mode: "revise" },
-  });
+  /* One module, top to bottom, no quiz and no interaction — the
+     version you read when you already know the material and just
+     want it all in front of you. */
+  const L = window.Library;
+  const MODULE_ID = "part-2";
+  Shell.mount({ active: "browse", prefix: "../" });
 
-  document.getElementById("revise-title").textContent = `Part II — ${part.title}`;
-  document.getElementById("revise-tagline").textContent = `${part.tagline} · continuous revision view, ordered ${part.chapters.length} chapters.`;
+  const mod = L.module(MODULE_ID);
+  const notes = L.notesIn(MODULE_ID);
 
-  const ordered = [...part.chapters].sort((a, b) => a.n - b.n);
+  document.getElementById("root").innerHTML = `
+    <div class="wrap wrap--narrow">
+      <header class="note-head">
+        <div class="crumb">
+          <a href="../index.html">Shelf</a><span>/</span>
+          <a href="../track.html?id=agentic">Language Models → Agentic AI</a><span>/</span>
+          <span>Read straight through</span>
+        </div>
+        <span class="page-head__eyebrow">Module ${String(mod.n).padStart(2, "0")} · ${notes.length} notes</span>
+        <h1 class="note-head__title">${Shell.esc(mod.title)}</h1>
+        <p class="note-head__short">${Shell.esc(mod.tagline || "")}</p>
+      </header>
+      ${notes
+        .map(
+          (n) => `<section class="revise-chapter quest-section is-visible">
+            <div class="quest-section__label"><span class="quest-section__icon">${String(n.n).padStart(2, "0")}</span><span class="eyebrow">${Shell.esc(n.title)}</span></div>
+            ${n.plain ? `<div class="plain-note"><span class="plain-note__tag">In plain terms</span><div class="prose">${n.plain}</div></div>` : ""}
+            <div class="prose">${n.hook}${n.explain}</div>
+            <div class="prose">${n.analogy}</div>
+            <ul class="quest-takeaways">${n.takeaways.map((t, i) => `<li><span class="quest-takeaways__mark">${i + 1}</span><span>${t}</span></li>`).join("")}</ul>
+            <p style="margin-top:var(--sp-4)"><a class="btn-quiet" href="ch-${String(n.n).padStart(2, "0")}.html">Open with diagrams and self-check →</a></p>
+          </section>`
+        )
+        .join("")}
+    </div>`;
 
-  const toc = document.getElementById("toc");
-  ordered.forEach((c) => {
-    const a = document.createElement("a");
-    a.href = `#${c.id}`;
-    a.textContent = `${c.n}. ${c.title}`;
-    toc.appendChild(a);
-  });
-
-  const chaptersRoot = document.getElementById("chapters");
-  chaptersRoot.innerHTML = ordered
-    .map(
-      (c) => `
-    <article class="revise-chapter" id="${c.id}">
-      <span class="eyebrow revise-chapter__eyebrow">CHAPTER ${String(c.n).padStart(2, "0")}</span>
-      <h2>${c.title}</h2>
-      ${c.plain ? `<div class="plain-note"><span class="plain-note__tag">In plain terms</span><div class="prose">${c.plain}</div></div>` : ""}
-      <div class="prose">${c.hook}${c.explain}</div>
-
-      <div class="revise-block">
-        <div class="revise-block__label">Visualize</div>
-        ${App.renderDiagramSet(c, { animated: false, gap: "12px" })}
-      </div>
-
-      ${c.math ? `<div class="revise-block">
-        <div class="revise-block__label">The Math</div>
-        ${App.renderFormulas(c.math)}
-      </div>` : ""}
-
-      <div class="revise-block">
-        <div class="revise-block__label">Intuition</div>
-        <div class="revise-callout prose">${c.analogy}</div>
-      </div>
-
-      <div class="revise-block">
-        <div class="revise-block__label">In Practice</div>
-        <div class="revise-callout revise-callout--amber prose">${c.example}</div>
-      </div>
-
-      <div class="revise-block">
-        <div class="revise-block__label">Key Takeaways</div>
-        <ul class="revise-takeaways">${c.takeaways.map((t) => `<li>${t}</li>`).join("")}</ul>
-      </div>
-
-      <div class="revise-block revise-qa">
-        <div class="revise-block__label">Quick Self-Check</div>
-        ${c.quiz
-          .map(
-            (q) => `<details>
-              <summary>${q.q}</summary>
-              <p><strong style="color:var(--amber-soft)">${q.options[q.answer]}</strong> — ${q.explain}</p>
-            </details>`
-          )
-          .join("")}
-      </div>
-    </article>`
-    )
-    .join("");
-
-  document.querySelectorAll(".diagram-bars__fill").forEach((el) => {
-    el.style.transitionDelay = "0ms";
-  });
-  App.activateDiagrams(document);
-
-  document.getElementById("toc-toggle").addEventListener("click", () => {
-    toc.classList.toggle("is-open");
-  });
-
-  const tocLinks = [...toc.querySelectorAll("a")];
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((e) => {
-        const link = toc.querySelector(`a[href="#${e.target.id}"]`);
-        if (!link) return;
-        if (e.isIntersecting) {
-          tocLinks.forEach((l) => l.classList.remove("is-active"));
-          link.classList.add("is-active");
-        }
-      });
-    },
-    { rootMargin: "-20% 0px -70% 0px" }
-  );
-  document.querySelectorAll(".revise-chapter").forEach((el) => io.observe(el));
+  document.getElementById("foot").innerHTML = Shell.foot({ prefix: "../" });
 </script>
 </body>
 </html>

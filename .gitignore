@@ -2,3 +2,10 @@
 skills-lock.json
 node_modules/
 agent/state/
+
+# scanned notes waiting to be filed — the write-ups are the artifact, not the images
+inbox/*
+!inbox/README.md
+!inbox/filed/
+inbox/filed/*
+!inbox/filed/.gitkeep

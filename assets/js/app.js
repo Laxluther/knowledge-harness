@@ -1196,37 +1196,12 @@ const App = (() => {
     </div>`;
   }
 
-  function xpPct(xp) {
-    return Progress.levelProgress(xp).pct;
-  }
-
-  function buildStatusBar({ homeHref = "index.html", toggle = null } = {}) {
-    const state = Progress.getState();
-    const lvl = Progress.levelProgress(state.xp);
-    const toggleHtml = toggle
-      ? `<div class="mode-toggle">
-          <a href="${toggle.mode === "quest" ? "#" : toggle.mapHref}" class="${toggle.mode === "quest" ? "is-active" : ""}">Quest</a>
-          <a href="${toggle.mode === "revise" ? "#" : toggle.reviseHref}" class="${toggle.mode === "revise" ? "is-active" : ""}">Revise</a>
-        </div>`
-      : "";
-    return `
-      <div class="statusbar">
-        <a class="statusbar__brand" href="${homeHref}">
-          <svg class="statusbar__brand-mark" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7l9 5 9-5-9-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 12l9 5 9-5M3 17l9 5 9-5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-          <span class="statusbar__brand-text"><span class="statusbar__brand-text--soft">Knowledge</span> Harness</span>
-        </a>
-        <div class="statusbar__streak" title="Day streak"><span class="statusbar__streak-icon">🔥</span> ${state.streak}</div>
-        <div class="xp-bar" title="Level ${lvl.level}">
-          <div class="xp-bar__track"><div class="xp-bar__fill" style="--xp-pct:${lvl.pct}%"></div></div>
-          <div class="xp-bar__label">Lv.${lvl.level}</div>
-        </div>
-        ${toggleHtml}
-        ${typeof Theme !== "undefined" ? Theme.markup() : ""}
-      </div>`;
-  }
+  /* buildStatusBar and xpPct lived here. Both were part of the XP
+     economy — streak counter, level bar, quest/revise toggle — and
+     went with it. Shell.nav() is the chrome now. */
 
   document.addEventListener("pointerdown", (e) => {
-    const el = e.target.closest(".btn, .map-controls button, .q-option, .mode-toggle a");
+    const el = e.target.closest(".btn, .btn-plate, .btn-quiet, .chip, .q-option");
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height) * 1.6;
@@ -1241,5 +1216,5 @@ const App = (() => {
     ripple.addEventListener("animationend", () => ripple.remove());
   });
 
-  return { renderDiagram, renderDiagramSet, renderFormulas, activateBars, activateAttention, activateEmbed, activateDiagrams, buildStatusBar, xpPct };
+  return { renderDiagram, renderDiagramSet, renderFormulas, activateBars, activateAttention, activateEmbed, activateDiagrams };
 })();

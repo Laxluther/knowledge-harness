@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#e9dcbe" />
+<script>(function(){try{var t=localStorage.getItem("kh-theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();</script>
+<title>Browse — Booklet</title>
+<meta name="description" content="Every note in the library, filtered by topic and module." />
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/base.css" />
+<link rel="stylesheet" href="assets/css/shell.css" />
+<style>
+  /* The toolbar sticks because filtering is a conversation: you change
+     one facet, read the count, change another. Losing the controls
+     off the top of the screen breaks that loop. */
+  .toolbar {
+    position: sticky;
+    top: 53px;
+    z-index: 30;
+    padding: var(--sp-4) 0 var(--sp-3);
+    background: color-mix(in srgb, var(--void) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .facet-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+  }
+
+  .facet-row__label {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    width: 62px;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+
+  .facet-row__chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); flex: 1; }
+
+  .results-bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    flex-wrap: wrap;
+    margin: var(--sp-5) 0 var(--sp-4);
+  }
+
+  /* module dot, so a result's colour is legible without reading */
+  .swatch {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+    background: var(--accent);
+  }
+
+  @media (max-width: 720px) {
+    .toolbar { top: 49px; }
+    .facet-row { flex-direction: column; gap: var(--sp-2); }
+    .facet-row__label { width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="wrap">
+    <div class="page-head">
+      <span class="page-head__eyebrow">The library</span>
+      <h1 class="page-head__title">Browse</h1>
+      <p class="page-head__sub">Every note, filterable by what it is about and where it sits. Filters stack — pick a module and a topic to narrow to the intersection.</p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="wrap">
+      <div class="finder">
+        <label class="finder__field" for="q">
+          <span class="finder__glyph" aria-hidden="true">⌕</span>
+          <input class="finder__input" id="q" type="search" autocomplete="off"
+                 placeholder="Search titles, summaries, and body text…" aria-label="Search notes" />
+          <kbd class="finder__key">/</kbd>
+        </label>
+      </div>
+
+      <div class="facet-row">
+        <span class="facet-row__label">Track</span>
+        <div class="facet-row__chips" id="track-facets"></div>
+      </div>
+
+      <!-- 52 modules across six tracks is too many chips to scan, so the
+           module row only appears once a track narrows it to a dozen -->
+      <div class="facet-row" id="module-row" hidden>
+        <span class="facet-row__label">Module</span>
+        <div class="facet-row__chips" id="module-facets"></div>
+      </div>
+
+      <div class="facet-row">
+        <span class="facet-row__label">Topic</span>
+        <div class="facet-row__chips" id="topic-facets"></div>
+      </div>
+
+      <div class="facet-row">
+        <span class="facet-row__label">State</span>
+        <div class="facet-row__chips" id="status-facets"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="results-bar">
+      <span class="count-line" id="count"></span>
+      <button class="btn-quiet" id="clear" type="button" hidden>Clear filters</button>
+    </div>
+    <div class="note-grid" id="results"></div>
+  </div>
+
+  <div id="foot"></div>
+</main>
+
+<script src="assets/js/theme.js"></script>
+<script src="content/part-1.js"></script>
+<script src="content/part-2.js"></script>
+<script src="content/part-3.js"></script>
+<script src="content/part-4.js"></script>
+<script src="content/part-5.js"></script>
+<script src="content/part-6.js"></script>
+<script src="content/part-7.js"></script>
+<script src="content/syllabus.js"></script>
+<script src="content/notes.js"></script>
+<script src="content/library.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  const L = window.Library;
+  Shell.mount({ active: "browse" });
+
+  /* ---- state lives in the URL, so any filtered view is a link you
+     can keep, bookmark, or send to yourself ---- */
+  const params = new URLSearchParams(location.search);
+  const state = {
+    q: params.get("q") || "",
+    track: params.get("track") || null,
+    module: params.get("module") || null,
+    topics: (params.get("topic") || "").split(",").filter(Boolean),
+    status: params.get("status") || null,
+  };
+
+  /* arriving straight at a module implies its track */
+  if (state.module && !state.track) {
+    const m = L.module(state.module);
+    if (m) state.track = m.track;
+  }
+
+  const input = document.getElementById("q");
+  input.value = state.q;
+
+  function syncUrl() {
+    const p = new URLSearchParams();
+    if (state.q) p.set("q", state.q);
+    if (state.track) p.set("track", state.track);
+    if (state.module) p.set("module", state.module);
+    if (state.topics.length) p.set("topic", state.topics.join(","));
+    if (state.status) p.set("status", state.status);
+    const qs = p.toString();
+    history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
+  }
+
+  function renderFacets() {
+    document.getElementById("track-facets").innerHTML = L.tracks
+      .map(
+        (t) =>
+          `<button class="chip" type="button" data-track="${t.id}" aria-pressed="${state.track === t.id}">
+             <span class="swatch" style="--accent:${Shell.hue(t.hue)}"></span>${Shell.esc(t.title)}<span class="chip__n">${t.count}</span>
+           </button>`
+      )
+      .join("");
+
+    const row = document.getElementById("module-row");
+    const track = state.track && L.track(state.track);
+    row.hidden = !track || !track.modules.length;
+
+    if (track && track.modules.length) {
+      document.getElementById("module-facets").innerHTML = track.modules
+        .map(
+          (m) =>
+            `<button class="chip" type="button" data-module="${m.id}" aria-pressed="${state.module === m.id}">
+               ${String(m.n).padStart(2, "0")} ${Shell.esc(m.title)}<span class="chip__n">${m.count}</span>
+             </button>`
+        )
+        .join("");
+    }
+
+    document.getElementById("topic-facets").innerHTML = L.topics
+      .slice()
+      .sort((a, b) => b.count - a.count)
+      .map(
+        (t) =>
+          `<button class="chip" type="button" data-topic="${t.id}" aria-pressed="${state.topics.includes(t.id)}">
+             ${Shell.esc(t.label)}<span class="chip__n">${t.count}</span>
+           </button>`
+      )
+      .join("");
+
+    document.getElementById("status-facets").innerHTML = [
+      { id: "written", label: "Written", n: L.counts.written },
+      { id: "planned", label: "Outlined only", n: L.counts.planned },
+    ]
+      .map(
+        (s) =>
+          `<button class="chip" type="button" data-status="${s.id}" aria-pressed="${state.status === s.id}">
+             ${s.label}<span class="chip__n">${s.n}</span>
+           </button>`
+      )
+      .join("");
+  }
+
+  function render() {
+    const found = L.search(state.q, {
+      topics: state.topics,
+      module: state.module,
+      track: state.track,
+      status: state.status,
+    });
+    const results = document.getElementById("results");
+
+    results.innerHTML = found.length
+      ? found.map((n) => Shell.noteCard(n)).join("")
+      : `<div class="empty" style="grid-column:1/-1">
+           <div class="empty__title">Nothing matches all of that.</div>
+           <p>Drop a topic or widen the search — filters combine with AND, so two unrelated topics will always come back empty.</p>
+         </div>`;
+
+    /* The count says what the filters did, not just how many are left —
+       "12 of 41" is the number you actually need while narrowing. */
+    const active = [];
+    if (state.track) {
+      const t = L.track(state.track);
+      if (t) active.push(t.title.toLowerCase());
+    }
+    if (state.module) {
+      const m = L.module(state.module);
+      if (m) active.push(`module ${String(m.n).padStart(2, "0")}`);
+    }
+    state.topics.forEach((t) => active.push(L.topicLabel(t).toLowerCase()));
+    if (state.status) active.push(state.status === "written" ? "written" : "outlined only");
+    if (state.q) active.push(`“${state.q}”`);
+
+    document.getElementById("count").innerHTML = active.length
+      ? `<strong>${found.length}</strong> of ${L.counts.notes} notes · ${active.join(" + ")}`
+      : `<strong>${found.length}</strong> notes`;
+
+    document.getElementById("clear").hidden = !active.length;
+
+    renderFacets();
+    syncUrl();
+  }
+
+  /* ---- interactions ---- */
+  document.getElementById("track-facets").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-track]");
+    if (!btn) return;
+    const next = state.track === btn.dataset.track ? null : btn.dataset.track;
+    state.track = next;
+    // a module belongs to exactly one track, so changing track always
+    // invalidates the module below it
+    state.module = null;
+    render();
+  });
+
+  document.getElementById("module-facets").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-module]");
+    if (!btn) return;
+    state.module = state.module === btn.dataset.module ? null : btn.dataset.module;
+    render();
+  });
+
+  document.getElementById("status-facets").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-status]");
+    if (!btn) return;
+    state.status = state.status === btn.dataset.status ? null : btn.dataset.status;
+    render();
+  });
+
+  document.getElementById("topic-facets").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-topic]");
+    if (!btn) return;
+    const t = btn.dataset.topic;
+    state.topics = state.topics.includes(t) ? state.topics.filter((x) => x !== t) : state.topics.concat(t);
+    render();
+  });
+
+  document.getElementById("clear").addEventListener("click", () => {
+    state.q = "";
+    state.track = null;
+    state.module = null;
+    state.topics = [];
+    state.status = null;
+    input.value = "";
+    render();
+  });
+
+  let debounce;
+  input.addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      state.q = input.value.trim();
+      render();
+    }, 120);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      input.focus();
+    }
+  });
+
+  render();
+  document.getElementById("foot").innerHTML = Shell.foot();
+</script>
+</body>
+</html>

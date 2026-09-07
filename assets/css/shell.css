@@ -1,0 +1,582 @@
+/* ============================================================
+   Shell — site chrome for the library.
+
+   Layers on tokens.css + base.css. Everything here is a single
+   class selector so nothing in this file can out-specify a page
+   that needs to override it.
+
+   The rhythm is borrowed deliberately from fanout: a mono
+   uppercase eyebrow, a large tight display line, one quiet
+   subhead, then dense content. What is *not* borrowed is the
+   purpose — fanout's home page sells a course, this one has to
+   get you into the right note in one move. So the hero is a
+   search field, not a call to action.
+   ============================================================ */
+
+/* ---------- top bar ---------------------------------------- */
+
+.shell-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-3) var(--sp-5);
+  background: color-mix(in srgb, var(--void) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.shell-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.shell-nav__sigil {
+  width: 26px;
+  height: 26px;
+  image-rendering: pixelated;
+}
+
+.shell-nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.shell-nav__links::-webkit-scrollbar { display: none; }
+
+.shell-nav__link {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: color var(--dur-fast), background var(--dur-fast);
+}
+
+.shell-nav__link:hover { color: var(--text); background: var(--panel); }
+.shell-nav__link[aria-current="page"] { color: var(--text); background: var(--panel-raised); }
+
+.shell-nav__aside {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+
+/* ---------- page rhythm ------------------------------------ */
+
+.wrap {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding-inline: var(--sp-5);
+}
+
+.wrap--narrow { max-width: 780px; }
+
+.page-head { padding: var(--sp-8) 0 var(--sp-6); }
+
+.page-head__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: block;
+  margin-bottom: var(--sp-4);
+}
+
+.page-head__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6.5vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+
+.page-head__sub {
+  margin-top: var(--sp-4);
+  max-width: 58ch;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+/* The honest count line. Every surface states its own numbers —
+   if a filter is on, this is what tells you how much it hid. */
+.count-line {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.count-line strong { color: var(--text-muted); font-weight: 500; }
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: var(--sp-6) 0;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-5);
+}
+
+.section-head__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  letter-spacing: -0.005em;
+}
+
+/* ---------- the finder ------------------------------------- */
+/* Hero on the home page, sticky toolbar on the library page.
+   Same component, two placements. */
+
+.finder { width: 100%; }
+
+.finder__field {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-panel);
+  transition: border-color var(--dur-fast);
+}
+
+.finder__field:focus-within { border-color: var(--ion); }
+
+.finder__glyph {
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.finder__input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--text);
+  background: none;
+  border: none;
+  outline: none;
+}
+
+.finder__input::placeholder { color: var(--text-faint); }
+
+.finder__key {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+
+.finder__facets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+/* ---------- chips ------------------------------------------ */
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.chip:hover { border-color: var(--line-bright); color: var(--text); }
+
+.chip[aria-pressed="true"] {
+  background: var(--plate);
+  color: var(--plate-text);
+  border-color: var(--plate);
+}
+
+.chip__n {
+  opacity: 0.55;
+  margin-left: 5px;
+  font-size: 0.92em;
+}
+
+/* ---------- the signature: stacked module decks ------------
+   A module is drawn as a bound stack of pages, and the number of
+   visible page edges IS the number of notes in it. Thickness is
+   data, not decoration — a fat module is genuinely one you have
+   written more about. The edges are hard-shadowed with no blur so
+   they stay crisp and pixel-like at any zoom.
+
+   --edges is set per card by deck.js. */
+
+/* The gap has to clear the stack: a 12-page card throws its edges
+   36px down and right, and anything tighter than that lets a thick
+   module overlap its neighbour. */
+.deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: var(--sp-7);
+  align-items: start;
+}
+
+.deck-card {
+  --tilt: 0deg;
+  position: relative;
+  display: block;
+  padding: var(--sp-5);
+  min-height: 188px;
+  background: var(--panel-raised);
+  border: 1.5px solid var(--line-bright);
+  border-radius: 3px; /* paper, not a pill */
+  box-shadow: var(--edges);
+  transform: rotate(var(--tilt));
+  transition: transform var(--dur-med) var(--ease-spring), box-shadow var(--dur-med) var(--ease-out);
+  will-change: transform;
+}
+
+.deck-card:hover,
+.deck-card:focus-visible {
+  transform: rotate(0deg) translate(-3px, -5px);
+}
+
+.deck-card__n {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--accent, var(--text-faint));
+  opacity: 0.9;
+}
+
+.deck-card__title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.22rem;
+  line-height: 1.2;
+  margin-top: var(--sp-3);
+}
+
+.deck-card__tagline {
+  margin-top: var(--sp-2);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.deck-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.deck-card__spine {
+  position: absolute;
+  left: 0;
+  top: var(--sp-5);
+  bottom: var(--sp-5);
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent, var(--line-bright));
+}
+
+/* ---------- note cards ------------------------------------- */
+
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+  gap: var(--sp-4);
+}
+
+.note-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-4) var(--sp-4) var(--sp-3);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--dur-fast), transform var(--dur-fast), background var(--dur-fast);
+}
+
+.note-card:hover {
+  background: var(--panel-raised);
+  border-color: var(--line-bright);
+  transform: translateY(-2px);
+}
+
+.note-card__rule {
+  height: 2px;
+  margin: calc(var(--sp-4) * -1) calc(var(--sp-4) * -1) var(--sp-4);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--accent, var(--line-bright));
+}
+
+.note-card__meta {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.note-card__title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.08rem;
+  line-height: 1.25;
+  margin-top: var(--sp-2);
+}
+
+.note-card__short {
+  margin-top: var(--sp-2);
+  font-size: 0.94rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.note-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.tag::before { content: "·"; margin-right: 4px; opacity: 0.6; }
+.tag:first-child::before { content: none; }
+
+/* A planned note is visible but inert: the outline exists, the note
+   does not. Muted rather than hidden, and never hover-lifted, so it
+   never pretends to be something you can open. */
+.note-card.is-planned {
+  background: transparent;
+  border-style: dashed;
+}
+
+.note-card.is-planned .note-card__title { color: var(--text-muted); font-weight: 500; }
+.note-card.is-planned .note-card__rule { opacity: 0.4; }
+.note-card.is-planned:hover { transform: none; background: transparent; border-color: var(--line); }
+
+.note-card__flag {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  opacity: 0.8;
+}
+
+/* ---------- bento (secondary surfaces) ---------------------
+   Not numbered. These are parallel tools, not a sequence, and
+   numbering things that have no order is decoration pretending
+   to be structure. */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(214px, 1fr));
+  gap: var(--sp-3);
+}
+
+.bento-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 156px;
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--tile, var(--panel));
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
+}
+
+.bento-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-node);
+}
+
+.bento-tile__glyph {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--text-muted);
+}
+
+/* both of these are spans inside an <a>, so they have to be told to
+   be blocks or the name and the description run together on one line */
+.bento-tile__name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  letter-spacing: 0.01em;
+}
+
+.bento-tile__desc {
+  display: block;
+  margin-top: var(--sp-2);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ---------- buttons ---------------------------------------- */
+
+.btn-plate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-full);
+  background: var(--plate);
+  color: var(--plate-text);
+  border: 1px solid var(--plate);
+  transition: transform var(--dur-fast), opacity var(--dur-fast);
+}
+
+.btn-plate:hover { transform: translateY(-1px); opacity: 0.92; }
+
+.btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--line-bright);
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+}
+
+.btn-quiet:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* ---------- empty state ------------------------------------
+   An empty screen is an invitation to act, so it says what to
+   do next rather than reporting that a set has zero members. */
+
+.empty {
+  padding: var(--sp-8) var(--sp-5);
+  text-align: center;
+  border: 1px dashed var(--line-bright);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+}
+
+.empty__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+
+/* ---------- footer ----------------------------------------- */
+
+.shell-foot {
+  margin-top: var(--sp-9);
+  padding: var(--sp-6) 0 var(--sp-7);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.shell-foot a { color: var(--text-muted); }
+.shell-foot a:hover { color: var(--ion); }
+
+/* ---------- page-load sequence -----------------------------
+   One orchestrated deal, like laying cards on a table, rather
+   than scattered effects. Stagger is set inline per card. */
+
+@keyframes deal-in {
+  from { opacity: 0; transform: translateY(18px) rotate(var(--tilt)); }
+  to   { opacity: 1; transform: translateY(0) rotate(var(--tilt)); }
+}
+
+.deal { opacity: 0; animation: deal-in 520ms var(--ease-out) forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .deal,
+  .enter-up {
+    animation: none;
+    opacity: 1;
+  }
+  .deck-card,
+  .note-card,
+  .bento-tile { transition: none; }
+  .deck-card:hover { transform: rotate(var(--tilt)); }
+}
+
+/* ---------- responsive ------------------------------------- */
+
+@media (max-width: 720px) {
+  .shell-nav { gap: var(--sp-3); padding-inline: var(--sp-4); }
+  .shell-nav__brand span { display: none; }
+  .wrap { padding-inline: var(--sp-4); }
+  .page-head { padding-top: var(--sp-6); }
+  .deck { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--sp-5) var(--sp-4); }
+  .deck-card { min-height: 164px; padding: var(--sp-4); }
+}

@@ -1,0 +1,95 @@
+/* ============================================================
+   Note reader — only the markup that is new.
+
+   The body of a note (sections, prose, diagrams, scenes, quiz
+   cards) is still dressed by quest.css. This file covers the
+   header, the topic row, and the previous/next footer, which
+   replaced the old XP status bar and map links.
+   ============================================================ */
+
+.note { padding-bottom: var(--sp-8); }
+
+.note-head {
+  padding: var(--sp-7) 0 var(--sp-6);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-6);
+}
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: var(--sp-4);
+}
+
+.crumb a { color: var(--text-muted); }
+.crumb a:hover { color: var(--ion); text-decoration: underline; text-underline-offset: 3px; }
+
+.note-head__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin-top: var(--sp-2);
+}
+
+.note-head__short {
+  margin-top: var(--sp-3);
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 52ch;
+}
+
+.note-head__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
+}
+
+/* ---- previous / next ----
+   Replaces "prove it to unlock the next node". Both directions are
+   always open, because nothing here is earned. */
+.note-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+}
+
+.note-nav__link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  transition: border-color var(--dur-fast), background var(--dur-fast);
+}
+
+.note-nav__link:hover { border-color: var(--line-bright); background: var(--panel-raised); }
+.note-nav__link--next { text-align: right; }
+
+.note-nav__dir {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.note-nav__name { font-weight: 600; line-height: 1.25; }
+
+@media (max-width: 640px) {
+  .note-nav { grid-template-columns: 1fr; }
+  .note-nav__link--next { text-align: left; }
+}

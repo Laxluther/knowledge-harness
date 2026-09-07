@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#e9dcbe" />
+<script>(function(){try{var t=localStorage.getItem("kh-theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();</script>
+<title>Decoder — Booklet</title>
+<meta name="description" content="Look up a mathematical symbol, see how to say it, what it means, and the trap that makes it hard to read." />
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/base.css" />
+<link rel="stylesheet" href="assets/css/shell.css" />
+<style>
+  .sym-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
+    gap: var(--sp-3);
+  }
+
+  .sym {
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-4);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast);
+  }
+
+  .sym:hover { background: var(--panel-raised); border-color: var(--line-bright); transform: translateY(-2px); }
+
+  /* The glyph is the thing you scan for, so it gets the space and the
+     serif — you are matching a shape you saw in a paper, not reading. */
+  .sym__glyph {
+    font-family: "EB Garamond", Georgia, serif;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--ion);
+    min-height: 2rem;
+  }
+
+  .sym__name { font-weight: 600; margin-top: var(--sp-3); }
+  .sym__say {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    margin-top: 3px;
+  }
+
+  .sym__means { font-size: 0.92rem; color: var(--text-muted); margin-top: var(--sp-3); line-height: 1.4; }
+
+  .sym__watch {
+    margin-top: var(--sp-3);
+    padding-top: var(--sp-2);
+    border-top: 1px dashed var(--line-bright);
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .sym__watch strong {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 3px;
+    font-weight: 500;
+  }
+
+  .sym__watch { display: none; }
+  .sym.is-open .sym__watch { display: block; }
+  .sym.is-open { background: var(--panel-raised); border-color: var(--ion); }
+
+  .group-head {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-top: var(--sp-4);
+  }
+  .group-head:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="wrap">
+    <div class="page-head">
+      <span class="page-head__eyebrow">Notation</span>
+      <h1 class="page-head__title">Decoder</h1>
+      <p class="page-head__sub">
+        Most notation is not hard, it is overloaded — the same bar means conditioning, absolute value,
+        norm, and set-builder depending on where it sits. Every entry says how to read it aloud, what it
+        means, and the confusion it usually causes. Click one to see the trap.
+      </p>
+    </div>
+
+    <div class="finder" style="max-width:620px">
+      <label class="finder__field" for="q">
+        <span class="finder__glyph" aria-hidden="true">⌕</span>
+        <input class="finder__input" id="q" type="search" autocomplete="off"
+               placeholder="Search a glyph, a name, or how it sounds…" aria-label="Search notation" />
+        <kbd class="finder__key">/</kbd>
+      </label>
+    </div>
+
+    <div class="finder__facets" id="facets" style="margin-top:var(--sp-4)"></div>
+
+    <p class="count-line" id="count" style="margin:var(--sp-5) 0 var(--sp-4)"></p>
+    <div class="sym-grid" id="grid"></div>
+  </div>
+
+  <div id="foot"></div>
+</main>
+
+<script src="assets/js/theme.js"></script>
+<script src="content/part-1.js"></script>
+<script src="content/part-2.js"></script>
+<script src="content/part-3.js"></script>
+<script src="content/part-4.js"></script>
+<script src="content/part-5.js"></script>
+<script src="content/part-6.js"></script>
+<script src="content/part-7.js"></script>
+<script src="content/syllabus.js"></script>
+<script src="content/notes.js"></script>
+<script src="content/library.js"></script>
+<script src="content/notation.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  Shell.mount({ active: "decoder" });
+
+  const ALL = window.NOTATION;
+  const DOMAINS = [
+    ["grammar", "Grammar"], ["sets", "Sets & logic"], ["algebra", "Linear algebra"],
+    ["calculus", "Calculus"], ["probability", "Probability"], ["optimization", "Optimization"],
+    ["information", "Information theory"], ["neural", "Neural nets"], ["inference", "Inference"],
+  ];
+
+  const state = { q: "", domain: null, level: null };
+
+  function matches(s) {
+    if (state.domain && s.domain !== state.domain) return false;
+    if (state.level && s.level !== state.level) return false;
+    if (!state.q) return true;
+    const q = state.q.toLowerCase();
+    return (
+      s.g.toLowerCase().includes(q) ||
+      s.name.toLowerCase().includes(q) ||
+      s.say.toLowerCase().includes(q) ||
+      s.means.toLowerCase().includes(q) ||
+      (s.watch || "").toLowerCase().includes(q)
+    );
+  }
+
+  function renderFacets() {
+    const counts = {};
+    ALL.forEach((s) => (counts[s.domain] = (counts[s.domain] || 0) + 1));
+
+    const domainChips = DOMAINS.filter(([id]) => counts[id])
+      .map(
+        ([id, label]) =>
+          `<button class="chip" type="button" data-domain="${id}" aria-pressed="${state.domain === id}">${label}<span class="chip__n">${counts[id]}</span></button>`
+      )
+      .join("");
+
+    const levelChips = [["basic", "Basic"], ["mid", "Intermediate"], ["advanced", "Advanced"]]
+      .map(
+        ([id, label]) =>
+          `<button class="chip" type="button" data-level="${id}" aria-pressed="${state.level === id}">${label}<span class="chip__n">${ALL.filter((s) => s.level === id).length}</span></button>`
+      )
+      .join("");
+
+    document.getElementById("facets").innerHTML = domainChips + levelChips;
+  }
+
+  function render() {
+    const found = ALL.filter(matches);
+    const grid = document.getElementById("grid");
+
+    if (!found.length) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+          <div class="empty__title">No symbol like that here yet.</div>
+          <p>Try the glyph itself, or how you would say it out loud — "arg max", "given", "nabla".</p>
+        </div>`;
+    } else {
+      /* Grouped by domain so scanning works when you half-remember
+         where you saw it rather than what it was called. */
+      let html = "";
+      let last = null;
+      found
+        .slice()
+        .sort((a, b) => {
+          const da = DOMAINS.findIndex(([d]) => d === a.domain);
+          const db = DOMAINS.findIndex(([d]) => d === b.domain);
+          return da - db || a.name.localeCompare(b.name);
+        })
+        .forEach((s) => {
+          if (s.domain !== last) {
+            const label = (DOMAINS.find(([d]) => d === s.domain) || [, s.domain])[1];
+            html += `<div class="group-head">${label}</div>`;
+            last = s.domain;
+          }
+          html += `<button class="sym" type="button" ${s.watch ? "" : "data-nowatch"}>
+              <span class="sym__glyph">${Shell.esc(s.g)}</span>
+              <span class="sym__name">${Shell.esc(s.name)}</span>
+              <span class="sym__say">${Shell.esc(s.say)}</span>
+              <span class="sym__means">${Shell.esc(s.means)}</span>
+              ${s.watch ? `<span class="sym__watch"><strong>Watch out</strong>${Shell.esc(s.watch)}</span>` : ""}
+            </button>`;
+        });
+      grid.innerHTML = html;
+    }
+
+    const bits = [];
+    if (state.domain) bits.push((DOMAINS.find(([d]) => d === state.domain) || [, state.domain])[1].toLowerCase());
+    if (state.level) bits.push(state.level);
+    if (state.q) bits.push(`“${state.q}”`);
+
+    document.getElementById("count").innerHTML =
+      `<strong>${found.length}</strong> of ${ALL.length} symbols` + (bits.length ? ` · ${bits.join(" + ")}` : "");
+
+    renderFacets();
+  }
+
+  document.getElementById("facets").addEventListener("click", (e) => {
+    const d = e.target.closest("[data-domain]");
+    const l = e.target.closest("[data-level]");
+    if (d) state.domain = state.domain === d.dataset.domain ? null : d.dataset.domain;
+    if (l) state.level = state.level === l.dataset.level ? null : l.dataset.level;
+    if (d || l) render();
+  });
+
+  document.getElementById("grid").addEventListener("click", (e) => {
+    const card = e.target.closest(".sym");
+    if (card && !card.hasAttribute("data-nowatch")) card.classList.toggle("is-open");
+  });
+
+  const input = document.getElementById("q");
+  input.addEventListener("input", () => { state.q = input.value.trim(); render(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      input.focus();
+    }
+  });
+
+  render();
+  document.getElementById("foot").innerHTML = Shell.foot();
+</script>
+</body>
+</html>

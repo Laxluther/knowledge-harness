@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#e9dcbe" />
+<script>(function(){try{var t=localStorage.getItem("kh-theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","light");}})();</script>
+<title>Track — Booklet</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/tokens.css" />
+<link rel="stylesheet" href="assets/css/base.css" />
+<link rel="stylesheet" href="assets/css/shell.css" />
+<style>
+  .crumb {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: flex;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-4);
+  }
+  .crumb a { color: var(--text-muted); }
+  .crumb a:hover { color: var(--ion); }
+
+  /* A progress strip, not a progress *bar*: it reports how much of the
+     outline has prose behind it, which on a library this young is
+     mostly empty and should look it rather than being rounded up. */
+  .fill {
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    max-width: 420px;
+    margin-top: var(--sp-4);
+  }
+  .fill__done { height: 100%; background: var(--accent); }
+
+  .track-modules { margin-top: var(--sp-7); }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="wrap">
+    <div class="page-head" id="head"></div>
+  </div>
+
+  <div class="wrap track-modules">
+    <div class="section-head">
+      <h2 class="section-head__title">Modules</h2>
+      <span class="count-line" id="mod-count"></span>
+    </div>
+    <div class="deck" id="deck"></div>
+  </div>
+
+  <div class="wrap" style="margin-top:var(--sp-8)">
+    <div class="section-head">
+      <h2 class="section-head__title">Everything in this track</h2>
+      <a class="btn-quiet" id="browse-link" href="browse.html">Open in browse →</a>
+    </div>
+    <div class="note-grid" id="notes"></div>
+  </div>
+
+  <div id="foot"></div>
+</main>
+
+<script src="assets/js/theme.js"></script>
+<script src="content/part-1.js"></script>
+<script src="content/part-2.js"></script>
+<script src="content/part-3.js"></script>
+<script src="content/part-4.js"></script>
+<script src="content/part-5.js"></script>
+<script src="content/part-6.js"></script>
+<script src="content/part-7.js"></script>
+<script src="content/syllabus.js"></script>
+<script src="content/notes.js"></script>
+<script src="content/library.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+  const L = window.Library;
+  Shell.mount({ active: "home" });
+
+  const id = new URLSearchParams(location.search).get("id");
+  const track = L.track(id);
+
+  if (!track) {
+    document.getElementById("head").innerHTML = `
+      <span class="page-head__eyebrow">Not found</span>
+      <h1 class="page-head__title">No such track</h1>
+      <p class="page-head__sub">That link points at a track the library does not have. Pick one from the shelf.</p>
+      <p style="margin-top:var(--sp-5)"><a class="btn-plate" href="index.html">Back to the shelf</a></p>`;
+    document.getElementById("deck").closest(".wrap").hidden = true;
+    document.getElementById("notes").closest(".wrap").hidden = true;
+  } else {
+    const accent = Shell.hue(track.hue);
+    const pct = track.count ? Math.round((track.written / track.count) * 100) : 0;
+
+    document.getElementById("head").innerHTML = `
+      <div class="crumb"><a href="index.html">Shelf</a><span>/</span><span>${Shell.esc(track.title)}</span></div>
+      <span class="page-head__eyebrow">${track.modules.length} modules · ${track.count} notes</span>
+      <h1 class="page-head__title">${Shell.esc(track.title)}</h1>
+      <p class="page-head__sub">${Shell.esc(track.tagline || "")}</p>
+      <div class="fill" style="--accent:${accent}"><div class="fill__done" style="width:${pct}%"></div></div>
+      <p class="count-line" style="margin-top:var(--sp-2)">
+        <strong>${track.written}</strong> of ${track.count} written${pct ? ` · ${pct}%` : " · outline only, so far"}
+      </p>`;
+
+    document.getElementById("mod-count").innerHTML = `<strong>${track.modules.length}</strong> modules`;
+
+    document.getElementById("deck").innerHTML = track.modules.length
+      ? track.modules.map((m, i) => Shell.moduleCard(m, i)).join("")
+      : `<div class="empty" style="grid-column:1/-1">
+           <div class="empty__title">No modules here yet.</div>
+           <p>Pages land in this track unfiled. Group them into modules when a shape starts to show.</p>
+         </div>`;
+
+    const notes = L.search("", { track: track.id });
+    document.getElementById("notes").innerHTML = notes.map((n) => Shell.noteCard(n)).join("");
+    document.getElementById("browse-link").href = `browse.html?track=${encodeURIComponent(track.id)}`;
+
+    document.title = `${track.title} — Booklet`;
+  }
+
+  document.getElementById("foot").innerHTML = Shell.foot();
+</script>
+</body>
+</html>
